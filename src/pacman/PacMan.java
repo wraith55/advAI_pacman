@@ -56,8 +56,8 @@ public class PacMan extends MovingObject {
   // Vickers: custom fields for logging human play
   private final String playerName;
   private int gameNumber = 1;
-  private File logFile;
-  private BufferedWriter fileWriter;
+  private File logFile, hashLogFile;
+  private BufferedWriter fileWriter, hashFileWriter;
   private GameStateFeatures lastGameState;
   
  /**
@@ -134,6 +134,18 @@ public class PacMan extends MovingObject {
             Logger.getLogger(PacMan.class.getName()).log(Level.SEVERE, null, ex);
         }
      }
+          // Flush and close file writer
+     if (hashFileWriter != null)
+     {  try 
+        {  
+            hashFileWriter.flush();
+            hashFileWriter.close();
+        } 
+        catch (IOException ex) 
+        {
+            Logger.getLogger(PacMan.class.getName()).log(Level.SEVERE, null, ex);
+        }
+     }
   }
   
   public void setGameNumber(int num)
@@ -150,6 +162,7 @@ public class PacMan extends MovingObject {
   {
       String fileName = "src/data/" + this.playerName + "_game_" + gameNum + ".txt";
       this.logFile = new File(fileName);
+      this.hashLogFile = new File("src/data/hash_" + this.playerName + "_game_" + gameNum + ".txt");
 
       try 
       {
@@ -159,11 +172,19 @@ public class PacMan extends MovingObject {
                if (! success)
                    System.err.println("ahh! unable to make log file : " + fileName);
           }
+          if (! this.hashLogFile.exists())
+          {
+               boolean success = hashLogFile.createNewFile();
+               if (! success)
+                   System.err.println("ahh! unable to make log file : " + this.hashLogFile.getAbsolutePath());
+          }
   
           this.fileWriter = new BufferedWriter(new FileWriter(this.logFile.getAbsoluteFile()));
+          this.hashFileWriter = new BufferedWriter(new FileWriter(this.hashLogFile.getAbsoluteFile()));
           
           // write header
           this.fileWriter.write(GameStateFeatures.header());
+          this.hashFileWriter.write("time         game_state\n");
           
       } 
       catch (IOException ex) 
@@ -414,7 +435,7 @@ public class PacMan extends MovingObject {
   @Override
   public void moveOneStep() {
       
-    this.logTimestep(this.fileWriter);
+    this.logTimestep(this.fileWriter, this.hashFileWriter);
       
       
     if (maze.gamePaused.get()) {
@@ -480,7 +501,7 @@ public class PacMan extends MovingObject {
   
   
   
-  private void logTimestep(BufferedWriter writer)
+  private void logTimestep(BufferedWriter writer, BufferedWriter hashWriter)
   {
       final double dist_thresh = 6.0;
       
@@ -513,7 +534,6 @@ public class PacMan extends MovingObject {
                                         timestep, 
                                         num_free_ghosts,
                                         num_ghosts_close,
-                                        num_active_dots,
                                         eatModeActive,
                                         pacmanLoc,
                                         pacmanDir,
@@ -529,6 +549,12 @@ public class PacMan extends MovingObject {
         {
           writer.write(features.toString());
           writer.flush();
+          
+          hashWriter.write(String.format("%-5s        %-32s        %-5s\n", 
+                                        timestep, 
+                                        Long.toBinaryString(features.representAsLong()),
+                                        action_to_int(keyboardBuffer)));
+          hashWriter.flush();
         } 
         catch (IOException ex) 
         {
@@ -545,6 +571,27 @@ public class PacMan extends MovingObject {
   private static double dist_formula(double x1, double x2, double y1, double y2)
   {
       return Math.sqrt( Math.pow(x2-x1, 2) +  Math.pow(y2-y1, 2) );
+  }
+  
+  private static int action_to_int(int action)
+  { 
+      switch(action)
+      {
+          case MOVE_UP:
+              System.out.println("UP");
+              return 1;
+          case MOVE_RIGHT:
+              System.out.println("RIGHT");
+              return 2;
+          case MOVE_DOWN:
+              System.out.println("DOWN");
+              return 3;
+          case MOVE_LEFT:
+              System.out.println("LEFT");
+              return 4;
+      }
+      System.out.println("NO ACTION");
+      return 0;  // no action.
   }
 
 }
