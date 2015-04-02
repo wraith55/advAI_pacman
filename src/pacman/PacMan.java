@@ -374,7 +374,7 @@ public class PacMan extends MovingObject {
   * Handle keyboard input.
   */
   private void handleKeyboardInput() {
-
+      
     if (keyboardBuffer < 0) {
       return;
     }
