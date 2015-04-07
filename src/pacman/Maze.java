@@ -94,12 +94,18 @@ public class Maze extends Parent {
  
  
  // Vickers: custom fields for logging human play
- private List<Pair<Integer, Integer>> activeDots = new ArrayList<>();
+ private List<Pair<Integer, Integer>> activeDots;
+ private List<Pair<Integer, Integer>> magicDots;
+ private List<Pair<Integer, Integer>> origDotLocs = new ArrayList<>(); 
+ private List<Pair<Integer, Integer>> origMagicDotLocs = new ArrayList<>();
  private final int numGames;
  private int timesPlayed;
  
   public Maze(String playerName, int numGames) {
 
+    this.activeDots = new ArrayList<>();
+    this.magicDots = new ArrayList<>();
+      
     this.numGames = numGames;
       
     setFocused(true);
@@ -525,6 +531,9 @@ public class Maze extends Parent {
       MazeData.printData();
       MazeData.printDots();
     }
+    
+    this.activeDots.addAll(this.origDotLocs);
+    this.magicDots.addAll(this.origMagicDotLocs);
   }
 
 
@@ -568,20 +577,28 @@ public class Maze extends Parent {
   public final Dot createDot(int x1, int y1, int type) {
     Dot d = new Dot(MazeData.calcGridX(x1), MazeData.calcGridY(y1), type);
 
+    
+    
     if (type == MazeData.MAGIC_DOT) {
-      
+        
+        this.origMagicDotLocs.add(new Pair(x1, y1));
+        
         d.playTimeline();
 
       d.shouldStopAnimation.bind(gamePaused.or(waitForStart)); // patweb
     }
-
+    else
+    {
+        this.origDotLocs.add(new Pair(x1, y1));
+    }
+    
 
     // set the dot type in data model
     MazeData.setData(x1, y1, type);
 
     // set dot reference
     MazeData.setDot(x1, y1, d);
-
+    
     return d;
   }
 
@@ -791,6 +808,13 @@ public class Maze extends Parent {
     // Increment times played, quit if max has been reached.
     this.timesPlayed++;
     pacMan.flushLogging();
+    
+    // Reset the dot locations
+    this.activeDots.clear();
+    this.activeDots.addAll(this.origDotLocs);
+    this.magicDots.clear();
+    this.magicDots.addAll(this.origMagicDotLocs);
+    
     if (this.timesPlayed > this.numGames)
         System.exit(0);
     pacMan.setGameNumber(this.timesPlayed);
@@ -820,6 +844,8 @@ public class Maze extends Parent {
 
         if ( (dot != null) && !dot.isVisible() ) {
           dot.setVisible(true);
+          
+          
         }
       }
     }
@@ -881,5 +907,9 @@ public class Maze extends Parent {
       addLifeFlag = false;
     }
   }
+  
+  public List<Pair<Integer, Integer>> getDotLocs()  { return this.activeDots;  }
+  
+  public List<Pair<Integer, Integer>> getMagicDotLocs()  { return this.magicDots;  }
 
 }

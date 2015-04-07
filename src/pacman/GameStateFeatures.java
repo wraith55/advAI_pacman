@@ -1,7 +1,6 @@
 package pacman;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  *
@@ -13,20 +12,15 @@ public class GameStateFeatures
     private final Pair<Integer, Integer> pacmanLoc;
     private final Pair<Integer, Integer> pacmanDir;
     private final List<Pair<Integer, Integer>> ghost_locations;
-    private final int num_free_ghosts, num_ghosts_close;
     private final boolean eatModeActive;
     
     public GameStateFeatures(int timestep,
-                             int num_free_ghosts, 
-                             int num_ghosts_close,
                              boolean eatModeActive,
                              Pair<Integer, Integer> pacmanLoc,
                              Pair<Integer, Integer> pacmanDir,
                              List<Pair<Integer, Integer>> ghostLocs)
     {
         this.timestep = timestep;
-        this.num_free_ghosts = num_free_ghosts;  
-        this.num_ghosts_close = num_ghosts_close;  
         this.eatModeActive = eatModeActive;  
         this.pacmanLoc = pacmanLoc;
         this.pacmanDir = pacmanDir;
@@ -42,9 +36,7 @@ public class GameStateFeatures
         GameStateFeatures other = (GameStateFeatures) obj;
         
         // timestep comparison is purposefully omitted
-        return this.num_free_ghosts == other.num_free_ghosts &&
-               this.num_ghosts_close == other.num_ghosts_close &&
-               this.eatModeActive == other.eatModeActive &&
+        return this.eatModeActive == other.eatModeActive &&
                this.pacmanLoc.equals( other.pacmanLoc ) &&
                this.pacmanDir.equals( other.pacmanDir ) && 
                this.ghost_locations.equals( other.ghost_locations );
@@ -55,7 +47,7 @@ public class GameStateFeatures
     public static String header()
     {
         return "timestep     pacman_x     pacman_y     pacman_xdir     pacman_ydir     "
-                + "free_ghosts     close_ghosts      eat_mode_active     "
+                + "eat_mode_active     "
                 + "ghost1_x     ghost1_y     ghost2_x     ghost2_y     ghost3_x     ghost3_y"
                 + "     ghost4_x     ghost4_y\n";
     }
@@ -64,13 +56,11 @@ public class GameStateFeatures
     public String toString()
     {
         return String.format
-                ("%-8s     %-8s     %-8s     %-11s     %-11s     %-11s     %-13s     %-16s     %-11s"
-               + "     %-8s     %-8s     %-8s      %-8s     %-8s     %-8s     %-8s\n",
+                ("%-8s     %-8s     %-8s     %-11s     %-11s     %-15s     %-8s"
+               + "     %-8s     %-8s     %-7s      %-8s     %-8s     %-8s     %-8s\n",
                  this.timestep,
                  this.pacmanLoc.left, this.pacmanLoc.right,
                  this.pacmanDir.left, this.pacmanDir.right,
-                 this.num_free_ghosts, 
-                 this.num_ghosts_close,
                 (this.eatModeActive) ? 1 : 0, 
                  this.ghost_locations.get(0).left, this.ghost_locations.get(0).right,
                  this.ghost_locations.get(1).left, this.ghost_locations.get(1).right,
@@ -91,8 +81,8 @@ public class GameStateFeatures
     {
         
         long bitmask = (this.eatModeActive) ? 1 : 0 ;
-        bitmask |= ( this.num_ghosts_close << 1 )   ;
-        bitmask |= ( this.num_free_ghosts  << 4 )   ;
+        bitmask |= ( 1 << 1 )   ;
+        bitmask |= ( 1  << 4 )   ;
         bitmask |= ( this.pacmanLoc.left   << 7 )   ;
         bitmask |= ( this.pacmanLoc.right  << 12 )  ;
         bitmask |= ( this.pacmanDir.left   << 17 )  ;
