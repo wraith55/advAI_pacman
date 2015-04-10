@@ -17,7 +17,7 @@ public class VickersInstanceMaker implements PacInstanceMaker
     public VickersInstanceMaker() {}
 
     @Override
-    public Instance makeInstance(String s) 
+    public Instance makeInstance(String mainLine, String dotLine, String magicDotLine) 
     {
         throw new UnsupportedOperationException("Not supported yet.");
     }

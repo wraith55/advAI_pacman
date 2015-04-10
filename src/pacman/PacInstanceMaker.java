@@ -14,6 +14,6 @@ import net.sf.javaml.core.Instance;
 public interface PacInstanceMaker 
 {
     
-    public Instance makeInstance(String s);
+    public Instance makeInstance(String mainLine, String dotLine, String magicDotLine);
     
 }

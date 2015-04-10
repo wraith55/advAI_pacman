@@ -25,30 +25,49 @@ public class PacML
 {
             
     
-    public static List<Instance> readInstances(String path, PacInstanceMaker instMaker) throws FileNotFoundException, 
-                                                                                        IOException, IllegalArgumentException
+    public static List<Instance> readInstances(String mainPath, String dotPath, String magDotPath, 
+                                               PacInstanceMaker instMaker) 
+                                                throws FileNotFoundException, 
+                                                       IOException, IllegalArgumentException
     {
-        if (path == null || path.equals("") || instMaker == null)
-            throw new IllegalArgumentException("path is empty or null or instMaker is null: path = " 
-                                                + path + ", instMaker = " + instMaker);
+        if (mainPath == null || mainPath.equals(""))
+            throw new IllegalArgumentException("mainPath is empty or null - mainPath = " 
+                                                + mainPath);
+        if (dotPath == null || dotPath.equals(""))
+            throw new IllegalArgumentException("dotPath is empty or null - dotPath = " 
+                                                + dotPath);
+        if (magDotPath == null || magDotPath.equals(""))
+            throw new IllegalArgumentException("magDotPath is empty or null - magDotPath = " 
+                                                + magDotPath);
         
-        File f = new File(path);
+        File mainFile = new File(mainPath);
+        File dotFile = new File(dotPath);
+        File magDotFile = new File(magDotPath);
         
-        if (! f.exists())
-            throw new FileNotFoundException("Cannot find instances file: " + path);
+        if (! mainFile.exists() || ! dotFile.exists() || ! magDotFile.exists())
+            throw new FileNotFoundException("Cannot find one of the log files");
         
         List<Instance> instances = new ArrayList<>();
         
-        BufferedReader reader = new BufferedReader( new FileReader(f) );
-        String line = "";
-        while (line != null)
+        BufferedReader mfReader = new BufferedReader( new FileReader(mainFile) );
+        BufferedReader dotReader = new BufferedReader( new FileReader(dotFile) );
+        BufferedReader magDotReader = new BufferedReader( new FileReader(magDotFile) );
+        
+        String mfLine = mfReader.readLine();
+        String dotLine = dotReader.readLine();
+        String magDotLine = magDotReader.readLine();
+        while (mfLine != null && dotLine != null && magDotLine != null)
         {
-            line = reader.readLine();
-            Instance inst = instMaker.makeInstance(line);
+            Instance inst = instMaker.makeInstance(mfLine, dotLine, magDotLine);
+            
             if (inst == null)
                 System.err.println("PacParser: readInstances - PacInstanceMaker returned null!");
             else
                 instances.add( inst );
+            
+            mfLine = mfReader.readLine();
+            dotLine = dotReader.readLine();
+            magDotLine = magDotReader.readLine();
         }
         
         if (instances.size() <= 0)
