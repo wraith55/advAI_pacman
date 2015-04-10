@@ -591,8 +591,8 @@ public class PacMan extends MovingObject {
   
   private void logDotLocations(BufferedWriter dotLocWriter, BufferedWriter magicDotLocWriter)
   {
-      System.out.println("dot locs size = " + this.maze.getDotLocs().size());
-      System.out.println("magic dot locs size = " + this.maze.getMagicDotLocs().size());
+      //System.out.println("dot locs size = " + this.maze.getDotLocs().size());
+      //System.out.println("magic dot locs size = " + this.maze.getMagicDotLocs().size());
       
       
       for (Pair<Integer, Integer> loc : this.maze.getDotLocs())

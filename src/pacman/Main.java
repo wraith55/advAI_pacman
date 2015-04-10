@@ -30,7 +30,7 @@ public class Main extends Application {
 
     final Group root = new Group();
     final Scene scene = new Scene(root);
-    root.getChildren().add(new Maze("James_Vickers", 3));
+    root.getChildren().add(new Maze("fake_name", 10));
     primaryStage.setScene(scene);
     primaryStage.show();
   }
