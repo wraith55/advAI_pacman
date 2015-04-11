@@ -5,8 +5,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.Animation;
@@ -14,6 +14,8 @@ import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import net.sf.javaml.classification.Classifier;
+import net.sf.javaml.core.Instance;
 
 /**
  * PacMan.fx created on 2009-1-1, 11:50:58 <br>
@@ -59,6 +61,16 @@ public class PacMan extends MovingObject {
   private File logFile, hashLogFile, dotLocFile, magicDotLocFile;
   private BufferedWriter fileWriter, hashFileWriter, dotLocWriter, magicDotLocWriter;
   private GameStateFeatures lastGameState;
+  private Classifier classifier = null;
+  private PacInstanceMaker instMaker;
+  
+  
+  public PacMan(Maze maze, int x, int y, String playerName, Classifier classifier, PacInstanceMaker instMaker)
+  {
+      this(maze, x, y, playerName);
+      this.classifier = classifier;
+      this.instMaker = instMaker;
+  }
   
  /**
   * Constructor.
@@ -118,34 +130,31 @@ public class PacMan extends MovingObject {
     getChildren().add(pacmanImage); // patweb
   }
   
+  
   /* Data functions for logging */
   
   public void flushLogging()
   {
-     // Flush and close file writer
-     if (fileWriter != null)
-     {  try 
-        {  
-            fileWriter.flush();
-            fileWriter.close();
-        } 
-        catch (IOException ex) 
-        {
-            Logger.getLogger(PacMan.class.getName()).log(Level.SEVERE, null, ex);
+     List<BufferedWriter> writers = Arrays.asList(
+                            new BufferedWriter[] {fileWriter, hashFileWriter,
+                                                  dotLocWriter, magicDotLocWriter}  );
+     
+     for (BufferedWriter wr : writers)
+     {
+        // Flush and close file writer
+        if (wr != null)
+        {  try 
+            {  
+                wr.flush();
+                wr.close();
+            } 
+            catch (IOException ex) 
+            {
+                Logger.getLogger(PacMan.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
      }
-          // Flush and close file writer
-     if (hashFileWriter != null)
-     {  try 
-        {  
-            hashFileWriter.flush();
-            hashFileWriter.close();
-        } 
-        catch (IOException ex) 
-        {
-            Logger.getLogger(PacMan.class.getName()).log(Level.SEVERE, null, ex);
-        }
-     }
+     
   }
   
   public void setGameNumber(int num)
@@ -153,9 +162,9 @@ public class PacMan extends MovingObject {
       // reset timesteps
       this.timestep = 0;
       
-      
       // open new log file and set to current
-      openNewLogFiles(num);
+      if (this.classifier == null)
+         openNewLogFiles(num);
   }
   
   private void openNewLogFiles(int gameNum)
@@ -460,8 +469,28 @@ public class PacMan extends MovingObject {
   */
   @Override
   public void moveOneStep() {
+      GameStateFeatures features = this.getCurrentFeatures();
       
-    this.logTimestep(this.fileWriter, this.hashFileWriter);
+      //only log timestep if its different from previous
+      if (this.lastGameState != null && (! this.lastGameState.equals(features)))
+      {
+        if (this.classifier == null)
+        {
+            this.logTimestep(features, this.fileWriter, this.hashFileWriter);
+        }
+        else
+        {
+            String mainLine = features.toString();
+            String dLocs = asString(this.maze.getDotLocs());
+            String magDlocs = asString(this.maze.getMagicDotLocs());
+            Instance inst = this.instMaker.makeInstance(mainLine, dLocs, magDlocs);
+            Object action = this.classifier.classify(inst);
+            setPacmanDir(action);
+        }
+        
+      }
+      // Update last seen features 
+      this.lastGameState = features;
       
       
     if (maze.gamePaused.get()) {
@@ -473,9 +502,8 @@ public class PacMan extends MovingObject {
       return;
     }
 
-    // handle keyboard input only when Pac-Man is at a point on the grid
     if (currentImage.get() == 0) {
-      handleKeyboardInput();
+      handleKeyboardInput();  // VICKERS: this may also be from an AI controller.
     }
 
     if (state == MOVING) {
@@ -525,16 +553,34 @@ public class PacMan extends MovingObject {
     start();
   }
   
-  
-  
-  private void logTimestep(BufferedWriter writer, BufferedWriter hashWriter)
+  private void setPacmanDir(Object dir)
   {
+      if (! (dir instanceof DIRECTION))
+          throw new IllegalArgumentException("obj: " + dir + " is not a DIRECTION enum!");
       
+      DIRECTION d = (DIRECTION) dir;
+      switch(d)
+      {
+          case UP:
+              this.setKeyboardBuffer(MOVE_UP);
+              break;
+          case DOWN:
+              this.setKeyboardBuffer(MOVE_DOWN);
+              break;
+          case LEFT:
+              this.setKeyboardBuffer(MOVE_LEFT);
+              break;
+          case RIGHT:
+              this.setKeyboardBuffer(MOVE_RIGHT);
+      }
+  }
+  
+  
+  public GameStateFeatures getCurrentFeatures()
+  {
       Pair<Integer, Integer> pacmanLoc = new Pair(this.x, this.y);
       Pair<Integer, Integer> pacmanDir = new Pair(this.xDirection, this.yDirection);
       List<Pair<Integer, Integer>> ghost_locs = new ArrayList<>();
-      
-      
       
       boolean eatModeActive = false;
       for (Ghost gh : this.maze.ghosts)
@@ -543,13 +589,9 @@ public class PacMan extends MovingObject {
           
           if (gh.isHollow)
               eatModeActive = true;
-          
-          //if (gh.state != Ghost.TRAPPED)
-          //    num_free_ghosts++;
+
       }
-      
-      //int num_active_dots = MazeData.dotTotal - this.dotEatenCount;
-      
+            
       GameStateFeatures features = new GameStateFeatures(
                                         timestep, 
                                         eatModeActive,
@@ -557,10 +599,11 @@ public class PacMan extends MovingObject {
                                         pacmanDir,
                                         ghost_locs   );
       
-      //only log timestep if its different from previous
-      if (this.lastGameState != null && (! this.lastGameState.equals(features)))
-      {
-        // only increment timestep on unique game features
+      return features;
+  }
+  
+  private boolean logTimestep(GameStateFeatures features, BufferedWriter writer, BufferedWriter hashWriter)
+  {
         timestep++;  
           
         try 
@@ -575,59 +618,56 @@ public class PacMan extends MovingObject {
           
           hashWriter.flush();
           
-          logDotLocations(this.dotLocWriter, this.magicDotLocWriter);
-        } 
+          logDotLocations(this.maze.getDotLocs(), this.maze.getMagicDotLocs(), 
+                          this.dotLocWriter, this.magicDotLocWriter);
+        }
         catch (IOException ex) 
         {
           Logger.getLogger(PacMan.class.getName()).log(Level.SEVERE, null, ex);
+          return false;
         }
-         
-      } 
-      
-      // Update last seen features and timestep counter
-      this.lastGameState = features;
-      
+        return true;
   }
   
-  private void logDotLocations(BufferedWriter dotLocWriter, BufferedWriter magicDotLocWriter)
-  {
-      //System.out.println("dot locs size = " + this.maze.getDotLocs().size());
-      //System.out.println("magic dot locs size = " + this.maze.getMagicDotLocs().size());
-      
-      
-      for (Pair<Integer, Integer> loc : this.maze.getDotLocs())
+  private boolean logDotLocations(List<Pair<Integer, Integer>> dotLocs, List<Pair<Integer, Integer>> magicDotLocs,
+                               BufferedWriter dotLocWriter, BufferedWriter magicDotLocWriter)
+  {   // log regular dots
+      try 
       {
-          try 
-          {
-              dotLocWriter.write(String.format("(%d, %d) ,", loc.left, loc.right));
-              dotLocWriter.flush();
-          } 
-          catch (IOException ex) 
-          {
-              Logger.getLogger(PacMan.class.getName()).log(Level.SEVERE, null, ex);
-          }
-      }
-          
-      for (Pair<Integer, Integer> loc : this.maze.getMagicDotLocs())
-      {   
-          try 
-          {
-              magicDotLocWriter.write(String.format("(%d, %d) ,", loc.left, loc.right));
-              magicDotLocWriter.flush();
-          } 
-          catch (IOException ex) 
-          {
-              Logger.getLogger(PacMan.class.getName()).log(Level.SEVERE, null, ex);
-          }
+        dotLocWriter.write(asString(dotLocs) + "\n");
+        dotLocWriter.flush();
+      } 
+      catch (IOException ex) 
+      {
+        Logger.getLogger(PacMan.class.getName()).log(Level.SEVERE, null, ex);
+        return false;
       }
       
-     try {
-         dotLocWriter.write("\n");
-         magicDotLocWriter.write("\n");
-     } catch (IOException ex) {
-         Logger.getLogger(PacMan.class.getName()).log(Level.SEVERE, null, ex);
-     }
+      /******************************************************/
+      // log magic dots
+      try 
+      {
+        magicDotLocWriter.write(asString(magicDotLocs) + "\n");
+        magicDotLocWriter.flush();
+      } 
+      catch (IOException ex) 
+      {
+        Logger.getLogger(PacMan.class.getName()).log(Level.SEVERE, null, ex);
+        return false;
+      }
+      /******************************************************/
       
+     return true;
+  }
+  
+  private static String asString(List<Pair<Integer, Integer>> locs)
+  {
+      String s = "";
+      for (Pair<Integer, Integer> loc : locs)
+      {
+              s += (String.format("(%d, %d) ,", loc.left, loc.right));
+      }
+      return s;
   }
   
   private static double dist_formula(double x1, double x2, double y1, double y2)

@@ -24,6 +24,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import net.sf.javaml.classification.Classifier;
 
 /**
  * Maze.fx created on 2008-12-20, 20:22:15 <br>
@@ -100,11 +101,17 @@ public class Maze extends Parent {
  private List<Pair<Integer, Integer>> origMagicDotLocs = new ArrayList<>();
  private final int numGames;
  private int timesPlayed;
+ private Classifier classifier = null;
+ private PacInstanceMaker instMaker = null;
  
-  public Maze(String playerName, int numGames) {
+ 
+  public Maze(String playerName, int numGames, Classifier classifier, PacInstanceMaker instMaker) {
 
     this.activeDots = new ArrayList<>();
     this.magicDots = new ArrayList<>();
+    
+    this.classifier = classifier;
+    this.instMaker = instMaker;
       
     this.numGames = numGames;
       
@@ -112,8 +119,15 @@ public class Maze extends Parent {
 
     gamePaused = new SimpleBooleanProperty(false);
 
-    pacMan = new PacMan(this, 15, 24, playerName);
-
+    if (this.instMaker == null || this.classifier == null)
+    {   System.out.println("Maze constructor: mode is human");    
+        pacMan = new PacMan(this, 15, 24, playerName);
+    }
+    else
+    {   System.out.println("Maze constructor: mode is AI");
+        pacMan = new PacMan(this, 15, 24, playerName, this.classifier, this.instMaker);
+    }
+        
     final Ghost ghostBlinky = new Ghost(
             new Image(getClass().getResourceAsStream("images/ghostred1.png")),
             new Image(getClass().getResourceAsStream("images/ghostred2.png")),
@@ -559,15 +573,25 @@ public class Maze extends Parent {
     if (gamePaused.get()) {
       return;
     }
-
-    if (e.getCode() == KeyCode.DOWN) {
-      pacMan.setKeyboardBuffer(MovingObject.MOVE_DOWN);
-    } else if (e.getCode() == KeyCode.UP) {
-      pacMan.setKeyboardBuffer(MovingObject.MOVE_UP);
-    } else if (e.getCode() == KeyCode.RIGHT) {
-      pacMan.setKeyboardBuffer(MovingObject.MOVE_RIGHT);
-    } else if (e.getCode() == KeyCode.LEFT) {
-      pacMan.setKeyboardBuffer(MovingObject.MOVE_LEFT);
+    
+    // only handle keyboard input if classifier is not active
+    if (this.classifier == null)
+    {
+        switch( e.getCode() )
+        {
+            case DOWN:
+                pacMan.setKeyboardBuffer(MovingObject.MOVE_DOWN);
+                break;
+            case UP:
+                pacMan.setKeyboardBuffer(MovingObject.MOVE_UP);
+                break;
+            case LEFT:
+                pacMan.setKeyboardBuffer(MovingObject.MOVE_LEFT);
+                break;
+            case RIGHT:
+                pacMan.setKeyboardBuffer(MovingObject.MOVE_RIGHT);
+                break;
+        }
     }
 
   }

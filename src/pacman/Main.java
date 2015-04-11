@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import net.sf.javaml.classification.Classifier;
 
 /**
  * Main.fx created on 2008-12-20, 12:02:26 <br>
@@ -18,7 +19,8 @@ public class Main extends Application {
   /**
    * @param args the command line arguments
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) 
+  {
     Application.launch(Main.class, args);
   }
 
@@ -30,7 +32,12 @@ public class Main extends Application {
 
     final Group root = new Group();
     final Scene scene = new Scene(root);
-    root.getChildren().add(new Maze("fake_name", 10));
+    
+    VickersInstanceMaker instMaker = new VickersInstanceMaker();
+    Classifier foo = new Foo();
+    root.getChildren().add(new Maze("fake_name", 10, foo, instMaker));
+    
+    
     primaryStage.setScene(scene);
     primaryStage.show();
   }
