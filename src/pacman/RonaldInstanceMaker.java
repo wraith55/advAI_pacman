@@ -137,7 +137,7 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         int[] indices = new int[k];
         double[] dists = new double[dotvals.length/2];
         for(int i=0;i<dotvals.length;i+=2){
-            dists[i] = PacMan.dist_formula(vals[i],vals[i+1], pacx, pacy);            
+            dists[i] = PacMan.dist_formula(dotvals[i],dotvals[i+1], pacx, pacy);            
         }
         for(int i=0; i<k; i++){
             double min = dists[0];
