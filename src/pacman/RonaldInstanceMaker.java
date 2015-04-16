@@ -10,6 +10,7 @@ import java.util.Scanner;
 import net.sf.javaml.core.Instance;
 import net.sf.javaml.core.DenseInstance;
 import java.lang.IllegalArgumentException;
+import java.util.Arrays;
 
 /**
  *
@@ -22,12 +23,23 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
     @Override
     public Instance makeInstance(String mainLine, String dotLine, String magicDotLine) {
         double[] mainArr = gameDataReader(mainLine);
+        double[] dotArrTotal = new double[512];
+        double[] magicDotArrTotal = new double[8];
+        
+        Arrays.fill(dotArrTotal, 0);
+        Arrays.fill(magicDotArrTotal, 0);
+        
         double[] dotArr = dotReader(dotLine);
         double[] magicDotArr = dotReader(magicDotLine);
         
-        double[] totalArr = concatArrays(mainArr, dotArr, magicDotArr);
+        dotArrTotal = copyArray(dotArrTotal, dotArr);
+        magicDotArrTotal = copyArray(magicDotArrTotal, magicDotArr);
         
-        Instance dataInstance = new DenseInstance(totalArr,DIRECTION.LEFT);
+        
+        double[] totalArr = concatArrays(mainArr, dotArrTotal, magicDotArrTotal);        
+        
+        Enum direction = pacDir(mainArr[3], mainArr[4]);
+        Instance dataInstance = new DenseInstance(totalArr,direction);
         
         
         
@@ -126,6 +138,24 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
     }
     
     /**
+     * Copies values of an array to another
+     * arr2 must be shorter, as it is being copied from
+     * @param arr1 array to be copied to
+     * @param arr2 array to be copied from
+     * @return arr1, modified
+     * @throws IllegalArgumentException if arr2 is longer than arr1
+     */
+    private double[] copyArray(double[] arr1, double[] arr2) throws IllegalArgumentException{
+        if(arr1.length < arr2.length){
+            throw new IllegalArgumentException("arr2 must be same length or shorter than arr1");
+        }
+        for(int i=0; i<arr2.length; i++){
+            arr1[i] = arr2[i];
+        }
+        return arr1;        
+    }
+    
+    /**
      * returns the max k indices of the dot values
      * @param dotvals the array of dot locations
      * @param pacx pacmans x loc
@@ -133,9 +163,10 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
      * @param k number of min you wantr
      * @return an array of indices of the locations of the k minimum dots
      */
-    private int[] minKIndices(double[] dotvals, double pacx, double pacy, int k){
+    private int[] minKIndices(double[] dotvals, double pacx, double pacy, int k) throws IllegalArgumentException{
         int[] indices = new int[k];
         double[] dists = new double[dotvals.length/2];
+        if (dotvals.length % 2 != 0) throw new IllegalArgumentException("Length of dotvals must be even");
         for(int i=0;i<dotvals.length;i+=2){
             dists[i] = PacMan.dist_formula(dotvals[i],dotvals[i+1], pacx, pacy);            
         }
@@ -162,7 +193,7 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
      * @return DIRECTION enum
      * @throws IllegalArgumentException if the x and y directions are not legal
      */
-    private Enum pacDir(int xdir, int ydir) throws IllegalArgumentException{
+    private Enum pacDir(double xdir, double ydir) throws IllegalArgumentException{
         if(xdir == -1){
             if (ydir != 0) throw new IllegalArgumentException("Pacman cannot travel diagonally");
             else return DIRECTION.LEFT;
