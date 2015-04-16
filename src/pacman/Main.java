@@ -35,8 +35,8 @@ public class Main extends Application {
     
     VickersInstanceMaker instMaker = new VickersInstanceMaker();
     Classifier foo = new Foo();
-    root.getChildren().add(new Maze("fake_name", 10, foo, instMaker));
-    
+    //root.getChildren().add(new Maze("fake_name", 10, foo, instMaker));
+    root.getChildren().add(new Maze("fake_name", 10, null, null));
     
     primaryStage.setScene(scene);
     primaryStage.show();
