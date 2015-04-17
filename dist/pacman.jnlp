@@ -17,7 +17,7 @@
     <jar href="lib/javaml-0.1.7.jar" size="381303" download="eager" />
     <jar href="lib/libsvm.jar" size="49771" download="eager" />
     <jar href="lib/weka.jar" size="5283274" download="eager" />
-    <jar href="pacman.jar" size="62268" download="eager" />
+    <jar href="pacman.jar" size="62042" download="eager" />
   </resources>
   <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="pacman" >
     <param name="requiredFXVersion" value="2.2+"/>

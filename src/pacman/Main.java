@@ -39,12 +39,12 @@ public class Main extends Application {
     
     System.out.println("current dir = " + System.getProperty("user.dir"));
     
-    List<Instance> instances = PacML.readInstancesFromDir("data/main", "data/dots", "data/magic_dots", instMaker) ;
-    System.out.println("instances size = " + instances.size() ) ;
+    //List<Instance> instances = PacML.readInstancesFromDir("data/main", "data/dots", "data/magic_dots", instMaker) ;
+    //System.out.println("instances size = " + instances.size() ) ;
     
     Classifier foo = new Foo();
     //root.getChildren().add(new Maze("fake_name", 10, foo, instMaker));
-    root.getChildren().add(new Maze("fake_name", 10, null, null));
+    root.getChildren().add(new Maze("test1", 10, null, null));
     
     primaryStage.setScene(scene);
     primaryStage.show();

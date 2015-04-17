@@ -22,9 +22,9 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
 
     @Override
     public Instance makeInstance(String mainLine, String dotLine, String magicDotLine) {
-        System.out.println("String1:" + mainLine);
-        System.out.println("String2:" + dotLine);
-        System.out.println("String3:" + magicDotLine);
+        //System.out.println("String1:" + mainLine);
+        //System.out.println("String2:" + dotLine);
+        //System.out.println("String3:" + magicDotLine);
         
         double[] mainArr = gameDataReader(mainLine);
         double[] dotArrTotal = new double[512];
@@ -119,10 +119,10 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
      */
     private double[] primConverter (Double[] valArr){
         double[] primArr = new double[valArr.length];
-        if(valArr.length <= 0) System.err.println("ERROR: array is null");
-        System.out.println("Valarr length = " + valArr.length);
+        //if(valArr.length <= 0) System.err.println("ERROR: array is null");
+        //System.out.println("Valarr length = " + valArr.length);
         for(int i=0; i<valArr.length;i++){
-            System.out.println("i= " + i);
+            //System.out.println("i= " + i);
             
             primArr[i] = valArr[i];
         }
