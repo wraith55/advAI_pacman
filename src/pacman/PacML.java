@@ -104,11 +104,12 @@ public class PacML
         
         // below: call readLine() twice the first time to skip the header!
         String mfLine = mfReader.readLine(); mfLine = mfReader.readLine() ;
-        String dotLine = dotReader.readLine(); dotLine = dotReader.readLine() ; 
-        String magDotLine = magDotReader.readLine(); magDotLine = magDotReader.readLine();
+        String dotLine = dotReader.readLine(); 
+        String magDotLine = magDotReader.readLine(); 
         /***************************************/
         while (mfLine != null && dotLine != null && magDotLine != null)
         {
+            
             Instance inst = instMaker.makeInstance(mfLine, dotLine, magDotLine);
             
             if (inst == null)
