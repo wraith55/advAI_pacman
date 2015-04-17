@@ -37,7 +37,9 @@ public class Main extends Application {
     
     PacInstanceMaker instMaker = new RonaldInstanceMaker();
     
-    List<Instance> instances = PacML.readInstances("data/main", "data/dots", "data/magic_dots", instMaker) ;
+    System.out.println("current dir = " + System.getProperty("user.dir"));
+    
+    List<Instance> instances = PacML.readInstancesFromDir("data/main", "data/dots", "data/magic_dots", instMaker) ;
     System.out.println("instances size = " + instances.size() ) ;
     
     Classifier foo = new Foo();

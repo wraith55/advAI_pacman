@@ -60,8 +60,10 @@ public class PacML
         for (File mainFile : mainDir.listFiles())
         {
             String mainName = mainFile.getName();
-            String dotPath = dotDirPath + mainName ;
-            String magDotPath = magDotDirPath + mainName ;
+            String dotPath = dotDirPath + File.separator + mainName ;
+            String magDotPath = magDotDirPath + File.separator + mainName ;
+            System.out.println("mainName = " + mainName);
+            System.out.println("paths = " + mainFile.getAbsolutePath() + ", " + dotPath + ", " + magDotPath);
             
             instances.addAll( readInstances(mainFile.getAbsolutePath(), dotPath, 
                                             magDotPath, instMaker) ) ;
