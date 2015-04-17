@@ -23,6 +23,53 @@ import net.sf.javaml.core.Instance;
  */
 public class PacML
 {
+    
+    public static List<Instance> readInstancesFromDir(String mainDirPath, String dotDirPath, 
+                                                      String magDotDirPath,
+                                                      PacInstanceMaker instMaker)
+                                                      throws FileNotFoundException, 
+                                                      IOException, IllegalArgumentException
+    {  
+        // Check for null or empty path arguments
+        if (mainDirPath == null || mainDirPath.equals("") )
+            throw new IllegalArgumentException("mainDirPath is empty or null - mainDirPath = " 
+                                                + mainDirPath);
+        if (dotDirPath == null || dotDirPath.equals(""))
+            throw new IllegalArgumentException("dotDirPath is empty or null - dotDirPath = " 
+                                                + dotDirPath);
+        if (magDotDirPath == null || magDotDirPath.equals(""))
+            throw new IllegalArgumentException("magDotDirPath is empty or null - magDotDirPath = " 
+                                                + magDotDirPath);
+        /*************************************************************/
+        // Open files, make sure they exist and are directories
+        File mainDir = new File(mainDirPath);
+        File dotDir = new File(dotDirPath);
+        File magDotDir = new File(magDotDirPath);
+        
+        if (! mainDir.exists() || ! dotDir.exists() || ! magDotDir.exists())
+            throw new FileNotFoundException("Cannot find one of the log files");
+        
+        if (! mainDir.isDirectory() || ! dotDir.isDirectory() || ! magDotDir.isDirectory())
+            throw new IllegalArgumentException("One of the input paths is not a directory!");
+        /************************************************************************************/
+        
+        List<Instance> instances = new ArrayList<>();
+        
+        // For every file in the mainDir, open the corresponding file in the
+        // other two dirs, pass their paths and the instMaker to readInstances().
+        for (File mainFile : mainDir.listFiles())
+        {
+            String mainName = mainFile.getName();
+            String dotPath = dotDirPath + mainName ;
+            String magDotPath = magDotDirPath + mainName ;
+            
+            instances.addAll( readInstances(mainFile.getAbsolutePath(), dotPath, 
+                                            magDotPath, instMaker) ) ;
+        }
+        /************************************************************************/
+        
+        return instances;
+    }
             
     
     public static List<Instance> readInstances(String mainPath, String dotPath, String magDotPath, 

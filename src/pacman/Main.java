@@ -1,10 +1,12 @@
 package pacman;
 
+import java.util.List;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import net.sf.javaml.classification.Classifier;
+import net.sf.javaml.core.Instance;
 
 /**
  * Main.fx created on 2008-12-20, 12:02:26 <br>
@@ -25,7 +27,7 @@ public class Main extends Application {
   }
 
   @Override
-  public void start(Stage primaryStage) {
+  public void start(Stage primaryStage) throws Exception {
     primaryStage.setTitle("Pac-Man by Henry Zhang www.javafxgame.com and Patrick Webster");
     primaryStage.setWidth(MazeData.calcGridX(MazeData.GRID_SIZE_X + 2));
     primaryStage.setHeight(MazeData.calcGridY(MazeData.GRID_SIZE_Y + 4));
@@ -33,7 +35,11 @@ public class Main extends Application {
     final Group root = new Group();
     final Scene scene = new Scene(root);
     
-    VickersInstanceMaker instMaker = new VickersInstanceMaker();
+    PacInstanceMaker instMaker = new RonaldInstanceMaker();
+    
+    List<Instance> instances = PacML.readInstances("data/main", "data/dots", "data/magic_dots", instMaker) ;
+    System.out.println("instances size = " + instances.size() ) ;
+    
     Classifier foo = new Foo();
     //root.getChildren().add(new Maze("fake_name", 10, foo, instMaker));
     root.getChildren().add(new Maze("fake_name", 10, null, null));
