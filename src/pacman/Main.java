@@ -1,5 +1,10 @@
 package pacman;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
@@ -59,7 +64,7 @@ public class Main extends Application {
     primaryStage.show();
   }
   
-  public static void cross_validate(List<Instance> instances)
+  public static void cross_validate(List<Instance> instances) throws Exception
   {
     for (int cross_idx = 0; cross_idx < 10; cross_idx++)
     {
@@ -77,6 +82,10 @@ public class Main extends Application {
         Classifier c = new KNearestNeighbors(5);
         System.out.println("building classifier from dataset...cross_idx = " + cross_idx);
         c.buildClassifier(PacML.makeDataset(training));
+        
+        File f = new File("data/classifiers/knn5");
+        ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(f.getAbsoluteFile()));
+        writer.writeObject(c);
         
         int left = 0, up = 0, down = 0, right = 0;
         int num_correct = 0;
