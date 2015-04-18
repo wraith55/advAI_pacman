@@ -30,8 +30,8 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         double[] dotArrTotal = new double[512];
         double[] magicDotArrTotal = new double[8];
         
-        Arrays.fill(dotArrTotal, 0);
-        Arrays.fill(magicDotArrTotal, 0);
+        Arrays.fill(dotArrTotal, -1000);  // default value puts it far outside location range
+        Arrays.fill(magicDotArrTotal, -1000);
         
         double[] dotArr = dotReader(dotLine);
         double[] magicDotArr = dotReader(magicDotLine);
@@ -39,14 +39,18 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         dotArrTotal = copyArray(dotArrTotal, dotArr);
         magicDotArrTotal = copyArray(magicDotArrTotal, magicDotArr);
         
+        int pacX = (int) mainArr[1] ;
+        int pacY = (int) mainArr[2] ;
         
-        double[] totalArr = concatArrays(mainArr, dotArrTotal, magicDotArrTotal);        
+        // select 5 closest dots (10 numbers, 2 for each dot location)
+        double[] minDotArr = minKLocationPairs(dotArrTotal, pacX, pacY, 5);
+
+        // below: changed to minDotArr to use closest dot pair locations
+        double[] totalArr = concatArrays(mainArr, minDotArr, magicDotArrTotal);        
         
         Enum direction = pacDir(mainArr[3], mainArr[4]);
+                
         Instance dataInstance = new DenseInstance(totalArr,direction);
-        
-        
-        
         
         return dataInstance;
     }
@@ -173,8 +177,9 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         int[] indices = new int[k];
         double[] dists = new double[dotvals.length/2];
         if (dotvals.length % 2 != 0) throw new IllegalArgumentException("Length of dotvals must be even");
-        for(int i=0;i<dotvals.length;i+=2){
-            dists[i] = PacMan.dist_formula(dotvals[i],dotvals[i+1], pacx, pacy);            
+        int idx = 0;
+        for(int i=0;i<dotvals.length-1;i+=2){
+            dists[idx++] = PacMan.dist_formula(dotvals[i],dotvals[i+1], pacx, pacy);            
         }
         for(int i=0; i<k; i++){
             double min = dists[0];
@@ -186,10 +191,28 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
                 }
             }
             indices[i] = 2 * index;
-            dists[index] = 999;
+            dists[index] = Double.MAX_VALUE;
         }
         
         return indices;
+    }
+    
+    private double[] minKLocationPairs(double[] dotvals, double pacx, double pacy, int k)
+    {
+        int[] minIndices = minKIndices(dotvals, pacx, pacy, k);
+        
+        double[] minDotArr = new double[2 * k];  // pair of numbers for each dot position
+        
+        // for every index in minIndices, copy the corresponding value in dotvals
+        // (which is x) and the one right after it (which is y)
+        int idx = 0;
+        for (int i = 0; i < minIndices.length; i++)
+        {   minDotArr[idx] =  dotvals[ minIndices[i] ];
+            minDotArr[idx+1] = dotvals[ minIndices[i] + 1 ];
+            idx += 2;
+        }   
+        
+        return minDotArr;
     }
     
     /**
@@ -225,6 +248,23 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         }
         
         
+    }
+    
+    public static void main(String[] args)
+    {
+        double[] dotVals = new double[] { 1, 2, 3, 4, 7, 7, 6, 6, 10, 11 };
+        double pacX = 7;
+        double pacY = 7;
+        RonaldInstanceMaker m = new RonaldInstanceMaker();
+        int[] minIndices = m.minKIndices(dotVals, pacX, pacY, 2);
+        for (int i = 0; i < minIndices.length; i++)
+            System.out.println("minIndices[" + i + "] = "  + minIndices[i]);
+        System.out.println("***********");
+        
+        double[] minLocs = m.minKLocationPairs(dotVals, pacX, pacY, 2);
+        for (int i = 0; i < minLocs.length; i++)
+            System.out.println("minLocs[" + i + "] = "  + minLocs[i]);
+        System.out.println("***********");
     }
     
     

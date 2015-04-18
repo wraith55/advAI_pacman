@@ -484,11 +484,16 @@ public class PacMan extends MovingObject {
             String dLocs = asString(this.maze.getDotLocs());
             String magDlocs = asString(this.maze.getMagicDotLocs());
             Instance inst = this.instMaker.makeInstance(mainLine, dLocs, magDlocs);
+            long t1 = System.currentTimeMillis();
             Object action = this.classifier.classify(inst);
+            long t2 = System.currentTimeMillis();
+            System.out.println("classification time: " + ((t2 - t1) / 1000));
             setPacmanDir(action);
         }
         
       }
+      else
+          System.out.println("no classification needed at this timestep");
       // Update last seen features 
       this.lastGameState = features;
       
@@ -543,7 +548,7 @@ public class PacMan extends MovingObject {
     currentImage.set(0);
     moveCounter = 0;
 
-    x = 15;
+    x = 15;  // originals: (15, 24)
     y = 24;
 
     imageX.set(MazeData.calcGridX(x));
@@ -555,6 +560,8 @@ public class PacMan extends MovingObject {
   
   private void setPacmanDir(Object dir)
   {
+      System.out.println("set pacman dir: " + dir);
+      
       if (! (dir instanceof DIRECTION))
           throw new IllegalArgumentException("obj: " + dir + " is not a DIRECTION enum!");
       
