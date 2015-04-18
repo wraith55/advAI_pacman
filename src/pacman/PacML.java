@@ -5,14 +5,23 @@
  */
 package pacman;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import net.sf.javaml.classification.Classifier;
+import net.sf.javaml.classification.KNearestNeighbors;
 import net.sf.javaml.core.Dataset;
 import net.sf.javaml.core.DefaultDataset;
 import net.sf.javaml.core.Instance;
@@ -134,6 +143,33 @@ public class PacML
             throw new IllegalArgumentException("data is null or empty: data = " + data);
         
         return new DefaultDataset(data);
+    }
+    
+    public File writeClassifierFile(Classifier c, String name) throws IOException{
+        File f = new File("data/classifiers/" + name);
+        ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(f.getAbsoluteFile()));
+        writer.writeObject(c);
+        return f;
+    }
+    
+    public Classifier readClassifierFile(String name, int n) throws FileNotFoundException, IOException{
+        InputStream file = new FileInputStream("data/classifiers/" + name);
+        InputStream buffer = new BufferedInputStream(file);
+        ObjectInput input = new ObjectInputStream(buffer);
+        
+        try{
+            Classifier fileClassifier = new KNearestNeighbors(n);
+            fileClassifier = (Classifier)input.readObject();
+            return fileClassifier;
+        }
+        catch(Exception e){
+            throw new IOException("Classifier not read from file");
+            
+        }
+        finally{
+            input.close();
+        }
+        
     }
         
 }

@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import net.sf.javaml.classification.Classifier;
 import net.sf.javaml.classification.KNearestNeighbors;
+import net.sf.javaml.classification.bayes.NaiveBayesClassifier;
 import net.sf.javaml.core.Instance;
 
 /**
@@ -58,7 +59,8 @@ public class Main extends Application {
                 training.add(instances.get(i));
         }
         
-        Classifier c = new KNearestNeighbors(5);
+        //Classifier c = new KNearestNeighbors(5);
+        Classifier c = new NaiveBayesClassifier(true, true, false);
         System.out.println("building classifier from dataset...cross_idx = " + cross_idx);
         c.buildClassifier(PacML.makeDataset(training));
         
