@@ -44,7 +44,7 @@ public class Main extends Application {
     
     Classifier foo = new Foo();
     //root.getChildren().add(new Maze("fake_name", 10, foo, instMaker));
-    root.getChildren().add(new Maze("test1", 10, null, null));
+    root.getChildren().add(new Maze("Ronald_Shaw", 10, null, null));
     
     primaryStage.setScene(scene);
     primaryStage.show();

@@ -169,7 +169,7 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
      * @param k number of min you wantr
      * @return an array of indices of the locations of the k minimum dots
      */
-    private int[] minKIndices(double[] dotvals, double pacx, double pacy, int k) throws IllegalArgumentException{
+    public static int[] minKIndices(double[] dotvals, double pacx, double pacy, int k) throws IllegalArgumentException{
         int[] indices = new int[k];
         double[] dists = new double[dotvals.length/2];
         if (dotvals.length % 2 != 0) throw new IllegalArgumentException("Length of dotvals must be even");
