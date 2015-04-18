@@ -1,5 +1,6 @@
 package pacman;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
@@ -59,10 +60,12 @@ public class Main extends Application {
                 training.add(instances.get(i));
         }
         
-        //Classifier c = new KNearestNeighbors(5);
-        Classifier c = new NaiveBayesClassifier(true, true, false);
+        Classifier c = new KNearestNeighbors(5);
+        //Classifier c = new NaiveBayesClassifier(true, true, false);
         System.out.println("building classifier from dataset...cross_idx = " + cross_idx);
         c.buildClassifier(PacML.makeDataset(training));
+        File f = PacML.writeClassifierFile(c, "test_classifier");
+        Classifier d = PacML.readClassifierFile("test_classifier", 5);
         
         int left = 0, up = 0, down = 0, right = 0;
         int num_correct = 0;
@@ -92,6 +95,7 @@ public class Main extends Application {
         System.out.println("num_correct = " + num_correct + ", out of " + testing.size() 
                 + ", rate is " + ((double) num_correct / testing.size()));
         System.out.println("left = " + left + ", right = " + right + ", down = " + down + ", up = " + up);
+        
     }
     System.exit(0);
     

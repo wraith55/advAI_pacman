@@ -75,7 +75,8 @@ public class PacML
             System.out.println("paths = " + mainFile.getAbsolutePath() + ", " + dotPath + ", " + magDotPath);
             
             instances.addAll( readInstances(mainFile.getAbsolutePath(), dotPath, 
-                                            magDotPath, instMaker) ) ;
+                                            magDotPath, instMaker) ) ;            
+            
         }
         /************************************************************************/
         
@@ -145,14 +146,31 @@ public class PacML
         return new DefaultDataset(data);
     }
     
-    public File writeClassifierFile(Classifier c, String name) throws IOException{
+    /**
+     * Writes a file from a classifier that can be read from later
+     * @param c a classifier object to be written to file
+     * @param name desired name of the file
+     * @return a file, which can be used if needed
+     * @throws IOException if the file cannot be written
+     */
+    public static File writeClassifierFile(Classifier c, String name) throws IOException{
         File f = new File("data/classifiers/" + name);
+        f.getParentFile().mkdirs();
+        f.createNewFile();
         ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(f.getAbsoluteFile()));
         writer.writeObject(c);
         return f;
     }
     
-    public Classifier readClassifierFile(String name, int n) throws FileNotFoundException, IOException{
+    /**
+     * reads a classifier from a serialized file
+     * @param name name of the file to read
+     * @param n number of neighbors for knearestneighbors
+     * @return a Classifier that is read from the file
+     * @throws FileNotFoundException
+     * @throws IOException 
+     */
+    public static Classifier readClassifierFile(String name, int n) throws FileNotFoundException, IOException{
         InputStream file = new FileInputStream("data/classifiers/" + name);
         InputStream buffer = new BufferedInputStream(file);
         ObjectInput input = new ObjectInputStream(buffer);

@@ -197,6 +197,7 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         return indices;
     }
     
+    
     private double[] minKLocationPairs(double[] dotvals, double pacx, double pacy, int k)
     {
         int[] minIndices = minKIndices(dotvals, pacx, pacy, k);
