@@ -169,11 +169,11 @@ public class PacMan extends MovingObject {
   
   private void openNewLogFiles(int gameNum)
   {
-      String fileName = "data/" + this.playerName + "_game_" + gameNum + ".txt";
-      this.logFile = new File(fileName);
-      this.hashLogFile = new File("data/hash_" + this.playerName + "_game_" + gameNum + ".txt");
-      this.dotLocFile = new File("data/" + this.playerName + "_game_" + gameNum + "_dotLocs.txt");
-      this.magicDotLocFile = new File("data/" + this.playerName + "_game_" + gameNum + "_magicDotLocs.txt");
+      String fileName = this.playerName + gameNum + ".txt";
+      this.logFile = new File("data/main/" + fileName);
+      this.hashLogFile = new File("data/hash/" + fileName);
+      this.dotLocFile = new File("data/dots/" + fileName);
+      this.magicDotLocFile = new File("data/magic_dots/" + fileName);
 
       try 
       {
