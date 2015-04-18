@@ -1,1 +1,0 @@
-timestep     pacman_x     pacman_y     pacman_xdir     pacman_ydir     eat_mode_active     ghost1_x     ghost1_y     ghost2_x     ghost2_y     ghost3_x     ghost3_y     ghost4_x     ghost4_y
