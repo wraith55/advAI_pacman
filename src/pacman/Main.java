@@ -44,12 +44,12 @@ public class Main extends Application {
     List<Instance> instances = PacML.readInstancesFromDir("data/main", "data/dots", "data/magic_dots", instMaker) ;
     System.out.println("instances size = " + instances.size() ) ;
     
-    List<Instance> training = new ArrayList<>();
-    List<Instance> testing = new ArrayList<>();
-    
     
     for (int cross_idx = 0; cross_idx < 10; cross_idx++)
     {
+        List<Instance> training = new ArrayList<>();
+        List<Instance> testing = new ArrayList<>();
+        
         for (int i = 0; i < instances.size(); i++)
         {
             if (i % 10 == cross_idx)
