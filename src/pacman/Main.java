@@ -49,9 +49,9 @@ public class Main extends Application {
     List<Instance> instances = PacML.readInstancesFromDir("data/main", "data/dots", "data/magic_dots", instMaker) ;
     System.out.println("instances size = " + instances.size() ) ;
     
-    cross_validate(instances);
+    //cross_validate(instances);
 
-    System.exit(0);
+    //System.exit(0);
     
     Classifier c = new KNearestNeighbors(5);
     System.out.println("building classifier from dataset...");

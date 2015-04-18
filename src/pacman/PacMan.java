@@ -478,22 +478,25 @@ public class PacMan extends MovingObject {
         {
             this.logTimestep(features, this.fileWriter, this.hashFileWriter);
         }
-        else
+        else if (features.getTimestep() % 10 == 0)
         {
             String mainLine = features.toString();
             String dLocs = asString(this.maze.getDotLocs());
             String magDlocs = asString(this.maze.getMagicDotLocs());
+
             Instance inst = this.instMaker.makeInstance(mainLine, dLocs, magDlocs);
             long t1 = System.currentTimeMillis();
             Object action = this.classifier.classify(inst);
             long t2 = System.currentTimeMillis();
             System.out.println("classification time: " + ((t2 - t1) / 1000));
-            setPacmanDir(action);
+            System.out.println("classification action = " + action);
+            setPacmanDir(action);    
+
         }
         
+        this.timestep++;  
       }
-      else
-          System.out.println("no classification needed at this timestep");
+
       // Update last seen features 
       this.lastGameState = features;
       
@@ -560,7 +563,6 @@ public class PacMan extends MovingObject {
   
   private void setPacmanDir(Object dir)
   {
-      System.out.println("set pacman dir: " + dir);
       
       if (! (dir instanceof DIRECTION))
           throw new IllegalArgumentException("obj: " + dir + " is not a DIRECTION enum!");
@@ -611,7 +613,6 @@ public class PacMan extends MovingObject {
   
   private boolean logTimestep(GameStateFeatures features, BufferedWriter writer, BufferedWriter hashWriter)
   {
-        timestep++;  
           
         try 
         {
