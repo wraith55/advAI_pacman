@@ -64,8 +64,8 @@ public class Main extends Application {
         //Classifier c = new NaiveBayesClassifier(true, true, false);
         System.out.println("building classifier from dataset...cross_idx = " + cross_idx);
         c.buildClassifier(PacML.makeDataset(training));
-        File f = PacML.writeClassifierFile(c, "test_classifier");
-        Classifier d = PacML.readClassifierFile("test_classifier", 5);
+        //File f = PacML.writeClassifierFile(c, "test_classifier");
+        //Classifier d = PacML.readClassifierFile("test_classifier", 5);
         
         int left = 0, up = 0, down = 0, right = 0;
         int num_correct = 0;
