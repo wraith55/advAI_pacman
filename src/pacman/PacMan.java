@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.Animation;
+import javafx.application.Platform;
 import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.image.Image;
@@ -478,12 +479,16 @@ public class PacMan extends MovingObject {
         {
             this.logTimestep(features, this.fileWriter, this.hashFileWriter);
         }
-        else if (features.getTimestep() % 10 == 0)
+        else if (true)//(features.getTimestep() % 5 == 0)
         {
             String mainLine = features.toString();
             String dLocs = asString(this.maze.getDotLocs());
-            String magDlocs = asString(this.maze.getMagicDotLocs());
-
+            String magDlocs = asString(this.maze.getMagicDotLocs());            
+            
+            
+            setAnimationState(false);
+            System.out.println("game is paused...making move decision...");
+            
             Instance inst = this.instMaker.makeInstance(mainLine, dLocs, magDlocs);
             long t1 = System.currentTimeMillis();
             Object action = this.classifier.classify(inst);
@@ -492,6 +497,8 @@ public class PacMan extends MovingObject {
             System.out.println("classification action = " + action);
             setPacmanDir(action);    
 
+            setAnimationState(true);
+            System.out.println("game is unpaused, continuing");
         }
         
         this.timestep++;  
@@ -702,6 +709,23 @@ public class PacMan extends MovingObject {
       }
       //System.out.println("NO ACTION");
       return 0;  // no action.
+  }
+  
+  public void setAnimationState(boolean on)
+  {
+      Ghost[] ghosts = this.maze.ghosts;
+      for (Ghost g : ghosts)
+      {
+          if (on)
+              g.start();
+          else
+              g.pause();
+      }
+      
+      if (on)
+          this.start();
+      else
+          this.pause();
   }
 
 }
