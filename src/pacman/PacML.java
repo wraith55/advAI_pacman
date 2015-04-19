@@ -43,7 +43,7 @@ public class PacML
     
     public static List<Instance> readInstancesFromDir(String mainDirPath, String dotDirPath, 
                                                       String magDotDirPath,
-                                                      PacInstanceMaker instMaker)
+                                                      PacInstanceMaker instMaker, int minSize)
                                                       throws FileNotFoundException, 
                                                       IOException, IllegalArgumentException
     {  
@@ -83,7 +83,7 @@ public class PacML
             System.out.println("paths = " + mainFile.getAbsolutePath() + ", " + dotPath + ", " + magDotPath);
             
             instances.addAll( readInstances(mainFile.getAbsolutePath(), dotPath, 
-                                            magDotPath, instMaker) ) ;            
+                                            magDotPath, instMaker, minSize) ) ;            
             
         }
         /************************************************************************/
@@ -93,7 +93,7 @@ public class PacML
             
     
     public static List<Instance> readInstances(String mainPath, String dotPath, String magDotPath, 
-                                               PacInstanceMaker instMaker) 
+                                               PacInstanceMaker instMaker, int minSize) 
                                                 throws FileNotFoundException, 
                                                        IOException, IllegalArgumentException
     {
@@ -142,6 +142,11 @@ public class PacML
         
         if (instances.size() <= 0)
             System.err.println("PacML: readInstances returning an empty list");
+        else if (instances.size() < minSize)
+        {   System.out.println("PacML: readInstances returning an empty list because "
+                    + "it has less than specified " + minSize + " instances");
+            return new ArrayList<Instance>();  // return empty list instead of small instance set
+        }
         
         return instances;
     }
@@ -197,20 +202,49 @@ public class PacML
         
     }
     
-    public static void makeBasicClassifiers(List<Instance> train_instances) throws IOException
+    public static void makeBasicClassifiers(List<Instance> train_instances, int minSize) throws IOException
     {
         
         Dataset data = makeDataset(train_instances);
         
-        //Classifier knn50 = new KNearestNeighbors(50);
-        //System.out.println("building knn classifier from dataset...");
-        //knn50.buildClassifier(makeDataset(train_instances));
+        try
+        {   Classifier knn5 = new KNearestNeighbors(5);
+            System.out.println("building KNN (5) classifier...");
+            knn5.buildClassifier(data);
+            writeClassifierFile(knn5, "knn5" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier KDtreeKNN(5)");
+            e.printStackTrace();
+        }
+        
+        try
+        {   Classifier knn25 = new KNearestNeighbors(25);
+            System.out.println("building KNN (25) classifier...");
+            knn25.buildClassifier(data);
+            writeClassifierFile(knn25, "knn25" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier KDtreeKNN(5)");
+            e.printStackTrace();
+        }
+        
+        try
+        {   Classifier knn50 = new KNearestNeighbors(50);
+            System.out.println("building KNN (5) classifier...");
+            knn50.buildClassifier(data);
+            writeClassifierFile(knn50, "knn50" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier KDtreeKNN(5)");
+            e.printStackTrace();
+        }
         
         try
         {   Classifier kdKNN5 = new KDtreeKNN(5);
             System.out.println("building KDtreeKNN (5) classifier...");
             kdKNN5.buildClassifier(data);
-            writeClassifierFile(kdKNN5, "kdKNN5");
+            writeClassifierFile(kdKNN5, "kdKNN5" + "_minSize_" + minSize);
         }
         catch(Exception e)
         {   System.out.println("could not build classifier KDtreeKNN(5)");
@@ -221,21 +255,10 @@ public class PacML
         {   Classifier kdKNN50 = new KDtreeKNN(50);
             System.out.println("building KDtreeKNN (50) classifier...");
             kdKNN50.buildClassifier(data);
-            writeClassifierFile(kdKNN50, "kdKNN50");
+            writeClassifierFile(kdKNN50, "kdKNN50" + "_minSize_" + minSize);
         }
         catch(Exception e)
         {   System.out.println("could not build classifier KDtreeKNN(50)");
-            e.printStackTrace();
-        }
-        
-        try        
-        {   Classifier svm = new LibSVM();
-            System.out.println("building svm classifier...");
-            svm.buildClassifier(data);
-            writeClassifierFile(svm, "svm");
-        }
-        catch(Exception e)
-        {   System.out.println("could not build classifier svm");
             e.printStackTrace();
         }
             
@@ -243,7 +266,7 @@ public class PacML
         {   Classifier soLinSVM = new SelfOptimizingLinearLibSVM();
             System.out.println("building SelfOptimizingLinearLibSVM classifier...");
             soLinSVM.buildClassifier(data);
-            writeClassifierFile(soLinSVM, "soLinSVM");
+            writeClassifierFile(soLinSVM, "soLinSVM" + "_minSize_" + minSize);
         }
         catch(Exception e)
         {   System.out.println("could not build classifier soLinSVM");
@@ -254,7 +277,7 @@ public class PacML
         {   Classifier randForest5 = new RandomForest(5);
             System.out.println("building RandomForest (5) classifier...");
             randForest5.buildClassifier(data);
-            writeClassifierFile(randForest5, "randForest5");
+            writeClassifierFile(randForest5, "randForest5" + "_minSize_" + minSize);
         }
         catch(Exception e)
         {   System.out.println("could not build classifier RandomForest(5)");
@@ -265,7 +288,7 @@ public class PacML
         {   Classifier randForest50 = new RandomForest(50);
             System.out.println("building RandomForest (50) classifier...");
             randForest50.buildClassifier(data);
-            writeClassifierFile(randForest50, "randForest50");
+            writeClassifierFile(randForest50, "randForest50" + "_minSize_" + minSize);
         }
         catch(Exception e)
         {   System.out.println("could not build classifier RandomForest(50)");
@@ -276,7 +299,7 @@ public class PacML
         {   Classifier meanFeatVoting = new MeanFeatureVotingClassifier();
             System.out.println("building MeanFeatureVoting classifier...");
             meanFeatVoting.buildClassifier(data);
-            writeClassifierFile(meanFeatVoting, "meanFeatVoting");
+            writeClassifierFile(meanFeatVoting, "meanFeatVoting" + "_minSize_" + minSize);
         }
         catch(Exception e)
         {   System.out.println("could not build classifier MeanFeatureVoting");
@@ -287,10 +310,21 @@ public class PacML
         {   Classifier nearestMean = new NearestMeanClassifier();
             System.out.println("building NearestMean classifier...");
             nearestMean.buildClassifier(data);
-            writeClassifierFile(nearestMean, "nearestMean");        
+            writeClassifierFile(nearestMean, "nearestMean" + "_minSize_" + minSize);        
         }
         catch(Exception e)
         {   System.out.println("could not build classifier NearestMean");
+            e.printStackTrace();
+        }
+        
+        try        
+        {   Classifier svm = new LibSVM();
+            System.out.println("building svm classifier...");
+            svm.buildClassifier(data);
+            writeClassifierFile(svm, "svm" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier svm");
             e.printStackTrace();
         }
 
