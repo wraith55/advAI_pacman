@@ -207,17 +207,20 @@ public class PacML
         
         Dataset data = makeDataset(train_instances);
         
+        
         try
-        {   Classifier knn5 = new KNearestNeighbors(5);
-            System.out.println("building KNN (5) classifier...");
-            knn5.buildClassifier(data);
-            writeClassifierFile(knn5, "knn5" + "_minSize_" + minSize);
+        {   Classifier knn1 = new KNearestNeighbors(1);
+            System.out.println("building KNN (1) classifier...");
+            knn1.buildClassifier(data);
+            writeClassifierFile(knn1, "knn1" + "_minSize_" + minSize);
         }
         catch(Exception e)
-        {   System.out.println("could not build classifier KNN(5)");
+        {   System.out.println("could not build classifier KNN (1)");
             e.printStackTrace();
         }
-        
+        System.exit(0);
+
+        /*
         try
         {   Classifier knn25 = new KNearestNeighbors(25);
             System.out.println("building KNN (25) classifier...");
@@ -245,6 +248,38 @@ public class PacML
             System.out.println("building KNN (100) classifier...");
             knn100.buildClassifier(data);
             writeClassifierFile(knn100, "knn100" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier knn (100)");
+            e.printStackTrace();
+        }
+        */
+        try
+        {   Classifier knn300 = new KNearestNeighbors(300);
+            System.out.println("building KNN (300) classifier...");
+            knn300.buildClassifier(data);
+            writeClassifierFile(knn300, "knn300" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier knn (300)");
+            e.printStackTrace();
+        }
+        
+        try
+        {   Classifier knn500 = new KNearestNeighbors(500);
+            System.out.println("building KNN (500) classifier...");
+            knn500.buildClassifier(data);
+            writeClassifierFile(knn500, "knn500" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier knn (100)");
+            e.printStackTrace();
+        }
+        try
+        {   Classifier knn1000 = new KNearestNeighbors(1000);
+            System.out.println("building KNN (1000) classifier...");
+            knn1000.buildClassifier(data);
+            writeClassifierFile(knn1000, "knn1000" + "_minSize_" + minSize);
         }
         catch(Exception e)
         {   System.out.println("could not build classifier knn (100)");
