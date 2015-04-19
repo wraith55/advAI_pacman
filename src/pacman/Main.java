@@ -46,11 +46,11 @@ public class Main extends Application {
     
     System.out.println("current dir = " + System.getProperty("user.dir"));
     
-    int minSize = 200;
+    int minSize = 500;
     
     List<Instance> instances = PacML.readInstancesFromDir("data/main", "data/dots", 
                                                           "data/magic_dots", instMaker, minSize) ;
-    System.out.println("instances size = " + instances.size() ) ;
+    //System.out.println("instances size = " + instances.size() ) ;
     
     //cross_validate(instances);
 
@@ -64,9 +64,9 @@ public class Main extends Application {
     
     PacML.makeBasicClassifiers(instances, minSize);
     
-    System.exit(0);
+    //System.exit(0);
     
-    Classifier c = PacML.readClassifierFile("knn50_full_data", 5);
+    Classifier c = PacML.readClassifierFile("knn25_minSize_200", 25);
 
     
     root.getChildren().add(new Maze("fake_name", 10, c, instMaker));

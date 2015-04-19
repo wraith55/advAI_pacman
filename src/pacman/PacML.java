@@ -214,7 +214,7 @@ public class PacML
             writeClassifierFile(knn5, "knn5" + "_minSize_" + minSize);
         }
         catch(Exception e)
-        {   System.out.println("could not build classifier KDtreeKNN(5)");
+        {   System.out.println("could not build classifier KNN(5)");
             e.printStackTrace();
         }
         
@@ -225,21 +225,33 @@ public class PacML
             writeClassifierFile(knn25, "knn25" + "_minSize_" + minSize);
         }
         catch(Exception e)
-        {   System.out.println("could not build classifier KDtreeKNN(5)");
+        {   System.out.println("could not build classifier KNN(25)");
             e.printStackTrace();
         }
         
         try
         {   Classifier knn50 = new KNearestNeighbors(50);
-            System.out.println("building KNN (5) classifier...");
+            System.out.println("building KNN (50) classifier...");
             knn50.buildClassifier(data);
             writeClassifierFile(knn50, "knn50" + "_minSize_" + minSize);
         }
         catch(Exception e)
-        {   System.out.println("could not build classifier KDtreeKNN(5)");
+        {   System.out.println("could not build classifier KNN (50)");
             e.printStackTrace();
         }
         
+        try
+        {   Classifier knn100 = new KNearestNeighbors(100);
+            System.out.println("building KNN (100) classifier...");
+            knn100.buildClassifier(data);
+            writeClassifierFile(knn100, "knn100" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier knn (100)");
+            e.printStackTrace();
+        }
+        
+        /*  kd KNN just throws an exception
         try
         {   Classifier kdKNN5 = new KDtreeKNN(5);
             System.out.println("building KDtreeKNN (5) classifier...");
@@ -261,7 +273,9 @@ public class PacML
         {   System.out.println("could not build classifier KDtreeKNN(50)");
             e.printStackTrace();
         }
-            
+        */
+         
+        /*  Call to build classifier never completes (waited ~12 hours)
         try
         {   Classifier soLinSVM = new SelfOptimizingLinearLibSVM();
             System.out.println("building SelfOptimizingLinearLibSVM classifier...");
@@ -272,6 +286,7 @@ public class PacML
         {   System.out.println("could not build classifier soLinSVM");
             e.printStackTrace();
         }
+        */
         
         try
         {   Classifier randForest5 = new RandomForest(5);
