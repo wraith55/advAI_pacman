@@ -184,8 +184,7 @@ public class PacML
         ObjectInput input = new ObjectInputStream(buffer);
         
         try{
-            Classifier fileClassifier = new KNearestNeighbors(n);
-            fileClassifier = (Classifier)input.readObject();
+            Classifier fileClassifier = (Classifier)input.readObject();
             return fileClassifier;
         }
         catch(Exception e){
@@ -207,47 +206,93 @@ public class PacML
         //System.out.println("building knn classifier from dataset...");
         //knn50.buildClassifier(makeDataset(train_instances));
         
-        Classifier kdKNN5 = new KDtreeKNN(5);
-        System.out.println("building KDtreeKNN (5) classifier...");
-        kdKNN5.buildClassifier(data);
-        writeClassifierFile(kdKNN5, "kdKNN5");
+        try
+        {   Classifier kdKNN5 = new KDtreeKNN(5);
+            System.out.println("building KDtreeKNN (5) classifier...");
+            kdKNN5.buildClassifier(data);
+            writeClassifierFile(kdKNN5, "kdKNN5");
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier KDtreeKNN(5)");
+            e.printStackTrace();
+        }
         
-        Classifier kdKNN50 = new KDtreeKNN(50);
-        System.out.println("building KDtreeKNN (50) classifier...");
-        kdKNN50.buildClassifier(data);
-        writeClassifierFile(kdKNN50, "kdKNN50");
+        try
+        {   Classifier kdKNN50 = new KDtreeKNN(50);
+            System.out.println("building KDtreeKNN (50) classifier...");
+            kdKNN50.buildClassifier(data);
+            writeClassifierFile(kdKNN50, "kdKNN50");
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier KDtreeKNN(50)");
+            e.printStackTrace();
+        }
         
-        Classifier svm = new LibSVM();
-        System.out.println("building svm classifier...");
-        svm.buildClassifier(data);
-        writeClassifierFile(svm, "svm");
+        try        
+        {   Classifier svm = new LibSVM();
+            System.out.println("building svm classifier...");
+            svm.buildClassifier(data);
+            writeClassifierFile(svm, "svm");
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier svm");
+            e.printStackTrace();
+        }
+            
+        try
+        {   Classifier soLinSVM = new SelfOptimizingLinearLibSVM();
+            System.out.println("building SelfOptimizingLinearLibSVM classifier...");
+            soLinSVM.buildClassifier(data);
+            writeClassifierFile(soLinSVM, "soLinSVM");
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier soLinSVM");
+            e.printStackTrace();
+        }
         
-        Classifier soLinSVM = new SelfOptimizingLinearLibSVM();
-        System.out.println("building SelfOptimizingLinearLibSVM classifier...");
-        soLinSVM.buildClassifier(data);
-        writeClassifierFile(soLinSVM, "soLinSVM");
-        
-        Classifier randForest5 = new RandomForest(5);
-        System.out.println("building RandomForest (5) classifier...");
-        randForest5.buildClassifier(data);
-        writeClassifierFile(randForest5, "randForest5");
-        
-        Classifier randForest50 = new RandomForest(50);
-        System.out.println("building RandomForest (50) classifier...");
-        randForest50.buildClassifier(data);
-        writeClassifierFile(randForest50, "randForest50");
-        
-        Classifier meanFeatVoting = new MeanFeatureVotingClassifier();
-        System.out.println("building MeanFeatureVoting classifier...");
-        meanFeatVoting.buildClassifier(data);
-        writeClassifierFile(meanFeatVoting, "meanFeatVoting");
-        
-        Classifier nearestMean = new NearestMeanClassifier();
-        System.out.println("building NearestMean classifier...");
-        nearestMean.buildClassifier(data);
-        writeClassifierFile(nearestMean, "nearestMean");        
-        
-        
+        try
+        {   Classifier randForest5 = new RandomForest(5);
+            System.out.println("building RandomForest (5) classifier...");
+            randForest5.buildClassifier(data);
+            writeClassifierFile(randForest5, "randForest5");
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier RandomForest(5)");
+            e.printStackTrace();
+        }
+            
+        try
+        {   Classifier randForest50 = new RandomForest(50);
+            System.out.println("building RandomForest (50) classifier...");
+            randForest50.buildClassifier(data);
+            writeClassifierFile(randForest50, "randForest50");
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier RandomForest(50)");
+            e.printStackTrace();
+        }
+            
+        try
+        {   Classifier meanFeatVoting = new MeanFeatureVotingClassifier();
+            System.out.println("building MeanFeatureVoting classifier...");
+            meanFeatVoting.buildClassifier(data);
+            writeClassifierFile(meanFeatVoting, "meanFeatVoting");
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier MeanFeatureVoting");
+            e.printStackTrace();
+        }
+            
+        try
+        {   Classifier nearestMean = new NearestMeanClassifier();
+            System.out.println("building NearestMean classifier...");
+            nearestMean.buildClassifier(data);
+            writeClassifierFile(nearestMean, "nearestMean");        
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier NearestMean");
+            e.printStackTrace();
+        }
 
     }
         
