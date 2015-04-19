@@ -19,9 +19,17 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import libsvm.LibSVM;
+import libsvm.SelfOptimizingLinearLibSVM;
 import net.sf.javaml.classification.Classifier;
+import net.sf.javaml.classification.KDtreeKNN;
 import net.sf.javaml.classification.KNearestNeighbors;
+import net.sf.javaml.classification.MeanFeatureVotingClassifier;
+import net.sf.javaml.classification.NearestMeanClassifier;
+import net.sf.javaml.classification.tree.RandomForest;
 import net.sf.javaml.core.Dataset;
 import net.sf.javaml.core.DefaultDataset;
 import net.sf.javaml.core.Instance;
@@ -188,6 +196,59 @@ public class PacML
             input.close();
         }
         
+    }
+    
+    public static void makeBasicClassifiers(List<Instance> train_instances) throws IOException
+    {
+        
+        Dataset data = makeDataset(train_instances);
+        
+        //Classifier knn50 = new KNearestNeighbors(50);
+        //System.out.println("building knn classifier from dataset...");
+        //knn50.buildClassifier(makeDataset(train_instances));
+        
+        Classifier kdKNN5 = new KDtreeKNN(5);
+        System.out.println("building KDtreeKNN (5) classifier...");
+        kdKNN5.buildClassifier(data);
+        writeClassifierFile(kdKNN5, "kdKNN5");
+        
+        Classifier kdKNN50 = new KDtreeKNN(50);
+        System.out.println("building KDtreeKNN (50) classifier...");
+        kdKNN50.buildClassifier(data);
+        writeClassifierFile(kdKNN50, "kdKNN50");
+        
+        Classifier svm = new LibSVM();
+        System.out.println("building svm classifier...");
+        svm.buildClassifier(data);
+        writeClassifierFile(svm, "svm");
+        
+        Classifier soLinSVM = new SelfOptimizingLinearLibSVM();
+        System.out.println("building SelfOptimizingLinearLibSVM classifier...");
+        soLinSVM.buildClassifier(data);
+        writeClassifierFile(soLinSVM, "soLinSVM");
+        
+        Classifier randForest5 = new RandomForest(5);
+        System.out.println("building RandomForest (5) classifier...");
+        randForest5.buildClassifier(data);
+        writeClassifierFile(randForest5, "randForest5");
+        
+        Classifier randForest50 = new RandomForest(50);
+        System.out.println("building RandomForest (50) classifier...");
+        randForest50.buildClassifier(data);
+        writeClassifierFile(randForest50, "randForest50");
+        
+        Classifier meanFeatVoting = new MeanFeatureVotingClassifier();
+        System.out.println("building MeanFeatureVoting classifier...");
+        meanFeatVoting.buildClassifier(data);
+        writeClassifierFile(meanFeatVoting, "meanFeatVoting");
+        
+        Classifier nearestMean = new NearestMeanClassifier();
+        System.out.println("building NearestMean classifier...");
+        nearestMean.buildClassifier(data);
+        writeClassifierFile(nearestMean, "nearestMean");        
+        
+        
+
     }
         
 }
