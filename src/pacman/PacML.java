@@ -207,25 +207,33 @@ public class PacML
         
         Dataset data = makeDataset(train_instances);
         
-        
         try
         {   Classifier knn1 = new KNearestNeighbors(1);
             System.out.println("building KNN (1) classifier...");
             knn1.buildClassifier(data);
-            writeClassifierFile(knn1, "knn1" + "_minSize_" + minSize);
+            writeClassifierFile(knn1, "vickersOnly_knn1" + "_minSize_" + minSize);
         }
         catch(Exception e)
         {   System.out.println("could not build classifier KNN (1)");
             e.printStackTrace();
         }
-        System.exit(0);
-
-        /*
+        
+        try
+        {   Classifier knn1 = new KNearestNeighbors(5);
+            System.out.println("building KNN (5) classifier...");
+            knn1.buildClassifier(data);
+            writeClassifierFile(knn1, "vickersOnly_knn5" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier KNN (5)");
+            e.printStackTrace();
+        }
+        
         try
         {   Classifier knn25 = new KNearestNeighbors(25);
             System.out.println("building KNN (25) classifier...");
             knn25.buildClassifier(data);
-            writeClassifierFile(knn25, "knn25" + "_minSize_" + minSize);
+            writeClassifierFile(knn25, "vickersOnly_knn25" + "_minSize_" + minSize);
         }
         catch(Exception e)
         {   System.out.println("could not build classifier KNN(25)");
@@ -236,7 +244,7 @@ public class PacML
         {   Classifier knn50 = new KNearestNeighbors(50);
             System.out.println("building KNN (50) classifier...");
             knn50.buildClassifier(data);
-            writeClassifierFile(knn50, "knn50" + "_minSize_" + minSize);
+            writeClassifierFile(knn50, "vickersOnly_knn50" + "_minSize_" + minSize);
         }
         catch(Exception e)
         {   System.out.println("could not build classifier KNN (50)");
@@ -247,18 +255,18 @@ public class PacML
         {   Classifier knn100 = new KNearestNeighbors(100);
             System.out.println("building KNN (100) classifier...");
             knn100.buildClassifier(data);
-            writeClassifierFile(knn100, "knn100" + "_minSize_" + minSize);
+            writeClassifierFile(knn100, "vickersOnly_knn100" + "_minSize_" + minSize);
         }
         catch(Exception e)
         {   System.out.println("could not build classifier knn (100)");
             e.printStackTrace();
         }
-        */
+        
         try
         {   Classifier knn300 = new KNearestNeighbors(300);
             System.out.println("building KNN (300) classifier...");
             knn300.buildClassifier(data);
-            writeClassifierFile(knn300, "knn300" + "_minSize_" + minSize);
+            writeClassifierFile(knn300, "vickersOnly_knn300" + "_minSize_" + minSize);
         }
         catch(Exception e)
         {   System.out.println("could not build classifier knn (300)");
@@ -269,7 +277,7 @@ public class PacML
         {   Classifier knn500 = new KNearestNeighbors(500);
             System.out.println("building KNN (500) classifier...");
             knn500.buildClassifier(data);
-            writeClassifierFile(knn500, "knn500" + "_minSize_" + minSize);
+            writeClassifierFile(knn500, "vickersOnly_knn500" + "_minSize_" + minSize);
         }
         catch(Exception e)
         {   System.out.println("could not build classifier knn (100)");
@@ -279,7 +287,7 @@ public class PacML
         {   Classifier knn1000 = new KNearestNeighbors(1000);
             System.out.println("building KNN (1000) classifier...");
             knn1000.buildClassifier(data);
-            writeClassifierFile(knn1000, "knn1000" + "_minSize_" + minSize);
+            writeClassifierFile(knn1000, "vickersOnly_knn1000" + "_minSize_" + minSize);
         }
         catch(Exception e)
         {   System.out.println("could not build classifier knn (100)");
@@ -324,10 +332,21 @@ public class PacML
         */
         
         try
+        {   Classifier randForest5 = new RandomForest(2);
+            System.out.println("building RandomForest (2) classifier...");
+            randForest5.buildClassifier(data);
+            writeClassifierFile(randForest5, "vickersOnly_randForest2" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier RandomForest(2)");
+            e.printStackTrace();
+        }
+        
+        try
         {   Classifier randForest5 = new RandomForest(5);
             System.out.println("building RandomForest (5) classifier...");
             randForest5.buildClassifier(data);
-            writeClassifierFile(randForest5, "randForest5" + "_minSize_" + minSize);
+            writeClassifierFile(randForest5, "vickersOnly_randForest5" + "_minSize_" + minSize);
         }
         catch(Exception e)
         {   System.out.println("could not build classifier RandomForest(5)");
@@ -338,7 +357,7 @@ public class PacML
         {   Classifier randForest50 = new RandomForest(50);
             System.out.println("building RandomForest (50) classifier...");
             randForest50.buildClassifier(data);
-            writeClassifierFile(randForest50, "randForest50" + "_minSize_" + minSize);
+            writeClassifierFile(randForest50, "vickersOnly_randForest50" + "_minSize_" + minSize);
         }
         catch(Exception e)
         {   System.out.println("could not build classifier RandomForest(50)");
@@ -349,7 +368,7 @@ public class PacML
         {   Classifier meanFeatVoting = new MeanFeatureVotingClassifier();
             System.out.println("building MeanFeatureVoting classifier...");
             meanFeatVoting.buildClassifier(data);
-            writeClassifierFile(meanFeatVoting, "meanFeatVoting" + "_minSize_" + minSize);
+            writeClassifierFile(meanFeatVoting, "vickersOnly_meanFeatVoting" + "_minSize_" + minSize);
         }
         catch(Exception e)
         {   System.out.println("could not build classifier MeanFeatureVoting");
@@ -360,7 +379,7 @@ public class PacML
         {   Classifier nearestMean = new NearestMeanClassifier();
             System.out.println("building NearestMean classifier...");
             nearestMean.buildClassifier(data);
-            writeClassifierFile(nearestMean, "nearestMean" + "_minSize_" + minSize);        
+            writeClassifierFile(nearestMean, "vickersOnly_nearestMean" + "_minSize_" + minSize);        
         }
         catch(Exception e)
         {   System.out.println("could not build classifier NearestMean");
@@ -371,7 +390,7 @@ public class PacML
         {   Classifier svm = new LibSVM();
             System.out.println("building svm classifier...");
             svm.buildClassifier(data);
-            writeClassifierFile(svm, "svm" + "_minSize_" + minSize);
+            writeClassifierFile(svm, "vickersOnly_svm" + "_minSize_" + minSize);
         }
         catch(Exception e)
         {   System.out.println("could not build classifier svm");

@@ -100,7 +100,7 @@ public class Maze extends Parent {
  private List<Pair<Integer, Integer>> origDotLocs = new ArrayList<>(); 
  private List<Pair<Integer, Integer>> origMagicDotLocs = new ArrayList<>();
  private final int numGames;
- private int timesPlayed;
+ private int timesPlayed = 0;  // change to allow for more logging
  private Classifier classifier = null;
  private PacInstanceMaker instMaker = null;
  
