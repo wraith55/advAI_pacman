@@ -46,10 +46,10 @@ public class Main extends Application {
     
     System.out.println("current dir = " + System.getProperty("user.dir"));
     
-    int minSize = 500;
+    int minSize = 250;
     
-    List<Instance> instances = PacML.readInstancesFromDir("data/main", "data/dots", 
-                                                          "data/magic_dots", instMaker, minSize) ;
+    //List<Instance> instances = PacML.readInstancesFromDir("data/vickers_data/main", "data/vickers_data/dots", 
+    //                                                      "data/vickers_data/magic_dots", instMaker, minSize) ;
     //System.out.println("instances size = " + instances.size() ) ;
     
     //cross_validate(instances);
@@ -62,15 +62,15 @@ public class Main extends Application {
     
     //PacML.writeClassifierFile(c, "knn50_full_data");
     
-    PacML.makeBasicClassifiers(instances, minSize);
+    //PacML.makeBasicClassifiers(instances, minSize);
     
     //System.exit(0);
     
-    Classifier c = PacML.readClassifierFile("knn25_minSize_200", 25);
+    Classifier c = PacML.readClassifierFile("vickersOnly_knn5_minSize_250", 25);
 
     
     root.getChildren().add(new Maze("fake_name", 10, c, instMaker));
-    //root.getChildren().add(new Maze("test1", 10, null, null));
+    //root.getChildren().add(new Maze("James_Vickers", 50, null, null));
     
     primaryStage.setScene(scene);
     primaryStage.show();
