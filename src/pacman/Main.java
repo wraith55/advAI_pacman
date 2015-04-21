@@ -43,22 +43,22 @@ public class Main extends Application {
     final Group root = new Group();
     final Scene scene = new Scene(root);
     
-    PacInstanceMaker instMaker = new RonaldInstanceMaker();
+    //PacInstanceMaker instMaker = new RonaldInstanceMaker();
     
-    System.out.println("current dir = " + System.getProperty("user.dir"));
+    //ystem.out.println("current dir = " + System.getProperty("user.dir"));
     
-    List<Instance> instances = PacML.readInstancesFromDir("data/main", "data/dots", "data/magic_dots", instMaker) ;
-    System.out.println("instances size = " + instances.size() ) ;
+    //List<Instance> instances = PacML.readInstancesFromDir("data/main", "data/dots", "data/magic_dots", instMaker) ;
+    //System.out.println("instances size = " + instances.size() ) ;
     
-    cross_validate(instances);
+    //cross_validate(instances);
 
-    System.exit(0);
+    //System.exit(0);
     
-    Classifier c = new KNearestNeighbors(5);
+    //Classifier c = new KNearestNeighbors(5);
     System.out.println("building classifier from dataset...");
-    c.buildClassifier(PacML.makeDataset(instances));
+    //c.buildClassifier(PacML.makeDataset(instances));
     
-    root.getChildren().add(new Maze("fake_name", 10, c, instMaker));
+    root.getChildren().add(new Maze("fake_name", 10, null, null));
     //root.getChildren().add(new Maze("test1", 10, null, null));
     
     primaryStage.setScene(scene);

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.Animation;
+import javafx.application.Platform;
 import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.image.Image;
@@ -470,6 +471,12 @@ public class PacMan extends MovingObject {
   @Override
   public void moveOneStep() {
       GameStateFeatures features = this.getCurrentFeatures();
+     /*try {
+         Platform.runLater(Thread.sleep(50));
+     } catch (InterruptedException ex) {
+         //Logger.getLogger(PacMan.class.getName()).log(Level.SEVERE, null, ex);
+         System.err.println("couldn't sleep");
+     }*/
       
       //only log timestep if its different from previous
       if (this.lastGameState != null && (! this.lastGameState.equals(features)))
