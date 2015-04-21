@@ -19,9 +19,17 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import libsvm.LibSVM;
+import libsvm.SelfOptimizingLinearLibSVM;
 import net.sf.javaml.classification.Classifier;
+import net.sf.javaml.classification.KDtreeKNN;
 import net.sf.javaml.classification.KNearestNeighbors;
+import net.sf.javaml.classification.MeanFeatureVotingClassifier;
+import net.sf.javaml.classification.NearestMeanClassifier;
+import net.sf.javaml.classification.tree.RandomForest;
 import net.sf.javaml.core.Dataset;
 import net.sf.javaml.core.DefaultDataset;
 import net.sf.javaml.core.Instance;
@@ -35,7 +43,7 @@ public class PacML
     
     public static List<Instance> readInstancesFromDir(String mainDirPath, String dotDirPath, 
                                                       String magDotDirPath,
-                                                      PacInstanceMaker instMaker)
+                                                      PacInstanceMaker instMaker, int minSize)
                                                       throws FileNotFoundException, 
                                                       IOException, IllegalArgumentException
     {  
@@ -75,7 +83,7 @@ public class PacML
             System.out.println("paths = " + mainFile.getAbsolutePath() + ", " + dotPath + ", " + magDotPath);
             
             instances.addAll( readInstances(mainFile.getAbsolutePath(), dotPath, 
-                                            magDotPath, instMaker) ) ;            
+                                            magDotPath, instMaker, minSize) ) ;            
             
         }
         /************************************************************************/
@@ -85,7 +93,7 @@ public class PacML
             
     
     public static List<Instance> readInstances(String mainPath, String dotPath, String magDotPath, 
-                                               PacInstanceMaker instMaker) 
+                                               PacInstanceMaker instMaker, int minSize) 
                                                 throws FileNotFoundException, 
                                                        IOException, IllegalArgumentException
     {
@@ -134,6 +142,11 @@ public class PacML
         
         if (instances.size() <= 0)
             System.err.println("PacML: readInstances returning an empty list");
+        else if (instances.size() < minSize)
+        {   System.out.println("PacML: readInstances returning an empty list because "
+                    + "it has less than specified " + minSize + " instances");
+            return new ArrayList<Instance>();  // return empty list instead of small instance set
+        }
         
         return instances;
     }
@@ -176,8 +189,7 @@ public class PacML
         ObjectInput input = new ObjectInputStream(buffer);
         
         try{
-            Classifier fileClassifier = new KNearestNeighbors(n);
-            fileClassifier = (Classifier)input.readObject();
+            Classifier fileClassifier = (Classifier)input.readObject();
             return fileClassifier;
         }
         catch(Exception e){
@@ -188,6 +200,184 @@ public class PacML
             input.close();
         }
         
+    }
+    
+    public static void makeBasicClassifiers(List<Instance> train_instances, int minSize) throws IOException
+    {
+        
+        Dataset data = makeDataset(train_instances);
+        
+        
+        try
+        {   Classifier knn1 = new KNearestNeighbors(1);
+            System.out.println("building KNN (1) classifier...");
+            knn1.buildClassifier(data);
+            writeClassifierFile(knn1, "knn1" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier KNN (1)");
+            e.printStackTrace();
+        }
+        System.exit(0);
+
+        /*
+        try
+        {   Classifier knn25 = new KNearestNeighbors(25);
+            System.out.println("building KNN (25) classifier...");
+            knn25.buildClassifier(data);
+            writeClassifierFile(knn25, "knn25" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier KNN(25)");
+            e.printStackTrace();
+        }
+        
+        try
+        {   Classifier knn50 = new KNearestNeighbors(50);
+            System.out.println("building KNN (50) classifier...");
+            knn50.buildClassifier(data);
+            writeClassifierFile(knn50, "knn50" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier KNN (50)");
+            e.printStackTrace();
+        }
+        
+        try
+        {   Classifier knn100 = new KNearestNeighbors(100);
+            System.out.println("building KNN (100) classifier...");
+            knn100.buildClassifier(data);
+            writeClassifierFile(knn100, "knn100" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier knn (100)");
+            e.printStackTrace();
+        }
+        */
+        try
+        {   Classifier knn300 = new KNearestNeighbors(300);
+            System.out.println("building KNN (300) classifier...");
+            knn300.buildClassifier(data);
+            writeClassifierFile(knn300, "knn300" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier knn (300)");
+            e.printStackTrace();
+        }
+        
+        try
+        {   Classifier knn500 = new KNearestNeighbors(500);
+            System.out.println("building KNN (500) classifier...");
+            knn500.buildClassifier(data);
+            writeClassifierFile(knn500, "knn500" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier knn (100)");
+            e.printStackTrace();
+        }
+        try
+        {   Classifier knn1000 = new KNearestNeighbors(1000);
+            System.out.println("building KNN (1000) classifier...");
+            knn1000.buildClassifier(data);
+            writeClassifierFile(knn1000, "knn1000" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier knn (100)");
+            e.printStackTrace();
+        }
+        
+        /*  kd KNN just throws an exception
+        try
+        {   Classifier kdKNN5 = new KDtreeKNN(5);
+            System.out.println("building KDtreeKNN (5) classifier...");
+            kdKNN5.buildClassifier(data);
+            writeClassifierFile(kdKNN5, "kdKNN5" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier KDtreeKNN(5)");
+            e.printStackTrace();
+        }
+        
+        try
+        {   Classifier kdKNN50 = new KDtreeKNN(50);
+            System.out.println("building KDtreeKNN (50) classifier...");
+            kdKNN50.buildClassifier(data);
+            writeClassifierFile(kdKNN50, "kdKNN50" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier KDtreeKNN(50)");
+            e.printStackTrace();
+        }
+        */
+         
+        /*  Call to build classifier never completes (waited ~12 hours)
+        try
+        {   Classifier soLinSVM = new SelfOptimizingLinearLibSVM();
+            System.out.println("building SelfOptimizingLinearLibSVM classifier...");
+            soLinSVM.buildClassifier(data);
+            writeClassifierFile(soLinSVM, "soLinSVM" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier soLinSVM");
+            e.printStackTrace();
+        }
+        */
+        
+        try
+        {   Classifier randForest5 = new RandomForest(5);
+            System.out.println("building RandomForest (5) classifier...");
+            randForest5.buildClassifier(data);
+            writeClassifierFile(randForest5, "randForest5" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier RandomForest(5)");
+            e.printStackTrace();
+        }
+            
+        try
+        {   Classifier randForest50 = new RandomForest(50);
+            System.out.println("building RandomForest (50) classifier...");
+            randForest50.buildClassifier(data);
+            writeClassifierFile(randForest50, "randForest50" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier RandomForest(50)");
+            e.printStackTrace();
+        }
+            
+        try
+        {   Classifier meanFeatVoting = new MeanFeatureVotingClassifier();
+            System.out.println("building MeanFeatureVoting classifier...");
+            meanFeatVoting.buildClassifier(data);
+            writeClassifierFile(meanFeatVoting, "meanFeatVoting" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier MeanFeatureVoting");
+            e.printStackTrace();
+        }
+            
+        try
+        {   Classifier nearestMean = new NearestMeanClassifier();
+            System.out.println("building NearestMean classifier...");
+            nearestMean.buildClassifier(data);
+            writeClassifierFile(nearestMean, "nearestMean" + "_minSize_" + minSize);        
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier NearestMean");
+            e.printStackTrace();
+        }
+        
+        try        
+        {   Classifier svm = new LibSVM();
+            System.out.println("building svm classifier...");
+            svm.buildClassifier(data);
+            writeClassifierFile(svm, "svm" + "_minSize_" + minSize);
+        }
+        catch(Exception e)
+        {   System.out.println("could not build classifier svm");
+            e.printStackTrace();
+        }
+
     }
         
 }

@@ -485,22 +485,31 @@ public class PacMan extends MovingObject {
         {
             this.logTimestep(features, this.fileWriter, this.hashFileWriter);
         }
-        else
+        else if (true)//(features.getTimestep() % 5 == 0)
         {
             String mainLine = features.toString();
             String dLocs = asString(this.maze.getDotLocs());
-            String magDlocs = asString(this.maze.getMagicDotLocs());
+            String magDlocs = asString(this.maze.getMagicDotLocs());            
+            
+            
+            setAnimationState(false);
+            System.out.println("game is paused...making move decision...");
+            
             Instance inst = this.instMaker.makeInstance(mainLine, dLocs, magDlocs);
             long t1 = System.currentTimeMillis();
             Object action = this.classifier.classify(inst);
             long t2 = System.currentTimeMillis();
             System.out.println("classification time: " + ((t2 - t1) / 1000));
-            setPacmanDir(action);
+            System.out.println("classification action = " + action);
+            setPacmanDir(action);    
+
+            setAnimationState(true);
+            System.out.println("game is unpaused, continuing");
         }
         
+        this.timestep++;  
       }
-      else
-          System.out.println("no classification needed at this timestep");
+
       // Update last seen features 
       this.lastGameState = features;
       
@@ -567,7 +576,6 @@ public class PacMan extends MovingObject {
   
   private void setPacmanDir(Object dir)
   {
-      System.out.println("set pacman dir: " + dir);
       
       if (! (dir instanceof DIRECTION))
           throw new IllegalArgumentException("obj: " + dir + " is not a DIRECTION enum!");
@@ -618,7 +626,6 @@ public class PacMan extends MovingObject {
   
   private boolean logTimestep(GameStateFeatures features, BufferedWriter writer, BufferedWriter hashWriter)
   {
-        timestep++;  
           
         try 
         {
@@ -708,6 +715,23 @@ public class PacMan extends MovingObject {
       }
       //System.out.println("NO ACTION");
       return 0;  // no action.
+  }
+  
+  public void setAnimationState(boolean on)
+  {
+      Ghost[] ghosts = this.maze.ghosts;
+      for (Ghost g : ghosts)
+      {
+          if (on)
+              g.start();
+          else
+              g.pause();
+      }
+      
+      if (on)
+          this.start();
+      else
+          this.pause();
   }
 
 }
