@@ -202,122 +202,43 @@ public class PacML
         
     }
     
-    public static void makeBasicClassifiers(List<Instance> train_instances, int minSize) throws IOException
+    public static void makeBasicClassifiers(List<Instance> train_instances, String label) throws IOException
     {
         
         Dataset data = makeDataset(train_instances);
         
-        try
-        {   Classifier knn1 = new KNearestNeighbors(1);
-            System.out.println("building KNN (1) classifier...");
-            knn1.buildClassifier(data);
-            writeClassifierFile(knn1, "vickersOnly_knn1" + "_minSize_" + minSize);
-        }
-        catch(Exception e)
-        {   System.out.println("could not build classifier KNN (1)");
-            e.printStackTrace();
+        int[] k_vals = new int[]{1, 5, 25, 50, 100, 300, 500, 1000};
+        
+        for (int k : k_vals)
+        {
+            try
+            {   Classifier knn = new KNearestNeighbors(k);
+                System.out.println("building KNN (1) classifier...");
+                knn.buildClassifier(data);
+                writeClassifierFile(knn, "vickersOnly_knn" + k + "_" + label);
+            }
+            catch(Exception e)
+            {   System.out.println("could not build classifier KNN " + k);
+                e.printStackTrace();
+            }   
         }
         
-        try
-        {   Classifier knn1 = new KNearestNeighbors(5);
-            System.out.println("building KNN (5) classifier...");
-            knn1.buildClassifier(data);
-            writeClassifierFile(knn1, "vickersOnly_knn5" + "_minSize_" + minSize);
-        }
-        catch(Exception e)
-        {   System.out.println("could not build classifier KNN (5)");
-            e.printStackTrace();
-        }
-        
-        try
-        {   Classifier knn25 = new KNearestNeighbors(25);
-            System.out.println("building KNN (25) classifier...");
-            knn25.buildClassifier(data);
-            writeClassifierFile(knn25, "vickersOnly_knn25" + "_minSize_" + minSize);
-        }
-        catch(Exception e)
-        {   System.out.println("could not build classifier KNN(25)");
-            e.printStackTrace();
-        }
-        
-        try
-        {   Classifier knn50 = new KNearestNeighbors(50);
-            System.out.println("building KNN (50) classifier...");
-            knn50.buildClassifier(data);
-            writeClassifierFile(knn50, "vickersOnly_knn50" + "_minSize_" + minSize);
-        }
-        catch(Exception e)
-        {   System.out.println("could not build classifier KNN (50)");
-            e.printStackTrace();
-        }
-        
-        try
-        {   Classifier knn100 = new KNearestNeighbors(100);
-            System.out.println("building KNN (100) classifier...");
-            knn100.buildClassifier(data);
-            writeClassifierFile(knn100, "vickersOnly_knn100" + "_minSize_" + minSize);
-        }
-        catch(Exception e)
-        {   System.out.println("could not build classifier knn (100)");
-            e.printStackTrace();
-        }
-        
-        try
-        {   Classifier knn300 = new KNearestNeighbors(300);
-            System.out.println("building KNN (300) classifier...");
-            knn300.buildClassifier(data);
-            writeClassifierFile(knn300, "vickersOnly_knn300" + "_minSize_" + minSize);
-        }
-        catch(Exception e)
-        {   System.out.println("could not build classifier knn (300)");
-            e.printStackTrace();
-        }
-        
-        try
-        {   Classifier knn500 = new KNearestNeighbors(500);
-            System.out.println("building KNN (500) classifier...");
-            knn500.buildClassifier(data);
-            writeClassifierFile(knn500, "vickersOnly_knn500" + "_minSize_" + minSize);
-        }
-        catch(Exception e)
-        {   System.out.println("could not build classifier knn (100)");
-            e.printStackTrace();
-        }
-        try
-        {   Classifier knn1000 = new KNearestNeighbors(1000);
-            System.out.println("building KNN (1000) classifier...");
-            knn1000.buildClassifier(data);
-            writeClassifierFile(knn1000, "vickersOnly_knn1000" + "_minSize_" + minSize);
-        }
-        catch(Exception e)
-        {   System.out.println("could not build classifier knn (100)");
-            e.printStackTrace();
-        }
-        
-        /*  kd KNN just throws an exception
-        try
-        {   Classifier kdKNN5 = new KDtreeKNN(5);
-            System.out.println("building KDtreeKNN (5) classifier...");
-            kdKNN5.buildClassifier(data);
-            writeClassifierFile(kdKNN5, "kdKNN5" + "_minSize_" + minSize);
-        }
-        catch(Exception e)
-        {   System.out.println("could not build classifier KDtreeKNN(5)");
-            e.printStackTrace();
-        }
-        
-        try
-        {   Classifier kdKNN50 = new KDtreeKNN(50);
-            System.out.println("building KDtreeKNN (50) classifier...");
-            kdKNN50.buildClassifier(data);
-            writeClassifierFile(kdKNN50, "kdKNN50" + "_minSize_" + minSize);
-        }
-        catch(Exception e)
-        {   System.out.println("could not build classifier KDtreeKNN(50)");
-            e.printStackTrace();
+        //  kd KNN just throws an exception
+        /*
+        for (int k : k_vals)
+        {   try
+            {   Classifier kdKNN = new KDtreeKNN(k);
+                System.out.println("building KDtreeKNN" + k + " classifier...");
+                kdKNN.buildClassifier(data);
+                writeClassifierFile(kdKNN5, "kdKNN5" + "_" + label);
+            }
+            catch(Exception e)
+            {   System.out.println("could not build classifier KDtreeKNN" + k);
+                e.printStackTrace();
+            }
         }
         */
-         
+        
         /*  Call to build classifier never completes (waited ~12 hours)
         try
         {   Classifier soLinSVM = new SelfOptimizingLinearLibSVM();
@@ -331,70 +252,18 @@ public class PacML
         }
         */
         
-        try
-        {   Classifier randForest5 = new RandomForest(2);
-            System.out.println("building RandomForest (2) classifier...");
-            randForest5.buildClassifier(data);
-            writeClassifierFile(randForest5, "vickersOnly_randForest2" + "_minSize_" + minSize);
-        }
-        catch(Exception e)
-        {   System.out.println("could not build classifier RandomForest(2)");
-            e.printStackTrace();
-        }
-        
-        try
-        {   Classifier randForest5 = new RandomForest(5);
-            System.out.println("building RandomForest (5) classifier...");
-            randForest5.buildClassifier(data);
-            writeClassifierFile(randForest5, "vickersOnly_randForest5" + "_minSize_" + minSize);
-        }
-        catch(Exception e)
-        {   System.out.println("could not build classifier RandomForest(5)");
-            e.printStackTrace();
-        }
-            
-        try
-        {   Classifier randForest50 = new RandomForest(50);
-            System.out.println("building RandomForest (50) classifier...");
-            randForest50.buildClassifier(data);
-            writeClassifierFile(randForest50, "vickersOnly_randForest50" + "_minSize_" + minSize);
-        }
-        catch(Exception e)
-        {   System.out.println("could not build classifier RandomForest(50)");
-            e.printStackTrace();
-        }
-            
-        try
-        {   Classifier meanFeatVoting = new MeanFeatureVotingClassifier();
-            System.out.println("building MeanFeatureVoting classifier...");
-            meanFeatVoting.buildClassifier(data);
-            writeClassifierFile(meanFeatVoting, "vickersOnly_meanFeatVoting" + "_minSize_" + minSize);
-        }
-        catch(Exception e)
-        {   System.out.println("could not build classifier MeanFeatureVoting");
-            e.printStackTrace();
-        }
-            
-        try
-        {   Classifier nearestMean = new NearestMeanClassifier();
-            System.out.println("building NearestMean classifier...");
-            nearestMean.buildClassifier(data);
-            writeClassifierFile(nearestMean, "vickersOnly_nearestMean" + "_minSize_" + minSize);        
-        }
-        catch(Exception e)
-        {   System.out.println("could not build classifier NearestMean");
-            e.printStackTrace();
-        }
-        
-        try        
-        {   Classifier svm = new LibSVM();
-            System.out.println("building svm classifier...");
-            svm.buildClassifier(data);
-            writeClassifierFile(svm, "vickersOnly_svm" + "_minSize_" + minSize);
-        }
-        catch(Exception e)
-        {   System.out.println("could not build classifier svm");
-            e.printStackTrace();
+        int[] tree_sizes = new int[] {2, 5, 50};
+        for (int t : tree_sizes)
+        {   try
+            {   Classifier randForest = new RandomForest(t);
+                System.out.println("building RandomForest " + t + " classifier...");
+                randForest.buildClassifier(data);
+                writeClassifierFile(randForest, "randForest" + t + "_" + label);
+            }
+            catch(Exception e)
+            {   System.out.println("could not build classifier RandomForest" + t);
+                e.printStackTrace();
+            }
         }
 
     }
