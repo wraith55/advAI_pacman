@@ -19,6 +19,8 @@ import java.util.Arrays;
 public class RonaldInstanceMaker implements PacInstanceMaker{
     
     
+    
+    
 
     @Override
     public Instance makeInstance(String mainLine, String dotLine, String magicDotLine) {
@@ -26,7 +28,10 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         //System.out.println("String2:" + dotLine);
         //System.out.println("String3:" + magicDotLine);
         
-        double[] mainArr = gameDataReader(mainLine);
+        Pair gameData = gameDataReader(mainLine);
+        double[] mainArr = (double[]) gameData.left;
+        DIRECTION pacDirection = (DIRECTION) gameData.right;
+        
         double[] dotArrTotal = new double[512];
         double[] magicDotArrTotal = new double[8];
         
@@ -48,9 +53,9 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         // below: changed to minDotArr to use closest dot pair locations
         double[] totalArr = concatArrays(mainArr, minDotArr, magicDotArrTotal);        
         
-        Enum direction = pacDir(mainArr[3], mainArr[4]);
+        //Enum direction = pacDir(mainArr[3], mainArr[4]);
                 
-        Instance dataInstance = new DenseInstance(totalArr,direction);
+        Instance dataInstance = new DenseInstance(totalArr,pacDirection);
         
         return dataInstance;
     }
@@ -61,7 +66,7 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
      * @param mainline a string of values passed in from a text file
      * @return a double array with all numeric values
      */
-    private double[] gameDataReader(String mainline){
+    private Pair<double[],Enum> gameDataReader(String mainline){
         ArrayList<Double> values;
         values = new ArrayList<>();
         
@@ -77,12 +82,19 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
                 }
             }
         }
+        DIRECTION dir = (DIRECTION) pacDir(values.get(3), values.get(4));
+        
+        //remove timestamp and pacdirection, which is essentially junk data
+        values.remove(0);
+        values.remove(3);
+        values.remove(4);
         Double[] valArr = new Double[values.size()];
         valArr = values.toArray(valArr);
         
         double[] primArr = primConverter(valArr);
+        Pair gameData = new Pair(primArr, dir);
         
-        return primArr;
+        return gameData;
         
     }
     
