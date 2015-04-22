@@ -259,7 +259,7 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         if (dotvals.length % 2 != 0) throw new IllegalArgumentException("Length of dotvals must be even");
         int idx = 0;
         for(int i=0;i<dotvals.length-1;i+=2){
-            dists[idx++] = PacMan.dist_formula(dotvals[i],dotvals[i+1], pacx, pacy);            
+            dists[idx++] = PacMan.dist_formula(pacx, dotvals[i], pacy, dotvals[i+1]);            
         }
         for(int i=0; i<k; i++){
             double min = dists[0];
