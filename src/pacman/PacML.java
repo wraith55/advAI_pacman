@@ -213,9 +213,9 @@ public class PacML
         {
             try
             {   Classifier knn = new KNearestNeighbors(k);
-                System.out.println("building KNN (1) classifier...");
+                System.out.println("building KNN" + k + " classifier...");
                 knn.buildClassifier(data);
-                writeClassifierFile(knn, "vickersOnly_knn" + k + "_" + label);
+                writeClassifierFile(knn, "knn" + k + "_" + label);
             }
             catch(Exception e)
             {   System.out.println("could not build classifier KNN " + k);
@@ -238,33 +238,7 @@ public class PacML
             }
         }
         */
-        
-        /*  Call to build classifier never completes (waited ~12 hours)
-        try
-        {   Classifier soLinSVM = new SelfOptimizingLinearLibSVM();
-            System.out.println("building SelfOptimizingLinearLibSVM classifier...");
-            soLinSVM.buildClassifier(data);
-            writeClassifierFile(soLinSVM, "soLinSVM" + "_minSize_" + minSize);
-        }
-        catch(Exception e)
-        {   System.out.println("could not build classifier soLinSVM");
-            e.printStackTrace();
-        }
-        */
-        
-        int[] tree_sizes = new int[] {2, 5, 50};
-        for (int t : tree_sizes)
-        {   try
-            {   Classifier randForest = new RandomForest(t);
-                System.out.println("building RandomForest " + t + " classifier...");
-                randForest.buildClassifier(data);
-                writeClassifierFile(randForest, "randForest" + t + "_" + label);
-            }
-            catch(Exception e)
-            {   System.out.println("could not build classifier RandomForest" + t);
-                e.printStackTrace();
-            }
-        }
+
 
     }
         
