@@ -31,7 +31,7 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         Pair gameData = gameDataReader(mainLine);
         double[] mainArr = (double[]) gameData.left;
         DIRECTION pacDirection = (DIRECTION) gameData.right;
-        System.out.println("length = " + mainArr.length);
+        //System.out.println("length = " + mainArr.length);
         
         double[] dotArrTotal = new double[512];
         double[] magicDotArrTotal = new double[8];

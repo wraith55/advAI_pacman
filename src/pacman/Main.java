@@ -48,8 +48,8 @@ public class Main extends Application {
     
     int minSize = 250;
     
-    //List<Instance> instances = PacML.readInstancesFromDir("data/vickers_data/main", "data/vickers_data/dots", 
-    //                                                      "data/vickers_data/magic_dots", instMaker, minSize) ;
+    //List<Instance> instances = PacML.readInstancesFromDir("data/main", "data/dots", 
+    //                                                          "data/magic_dots", instMaker, minSize) ;
     //System.out.println("instances size = " + instances.size() ) ;
     
     //cross_validate(instances);
@@ -66,7 +66,7 @@ public class Main extends Application {
     
     //System.exit(0);
     
-    Classifier c = PacML.readClassifierFile("vickersOnly_knn5_minSize_250", 25);
+    Classifier c = PacML.readClassifierFile("RonaldTest_knn1_minsize_250", 1);
 
     
     root.getChildren().add(new Maze("fake_name", 10, c, instMaker));

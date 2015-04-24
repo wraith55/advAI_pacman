@@ -211,7 +211,9 @@ public class PacML
         {   Classifier knn1 = new KNearestNeighbors(1);
             System.out.println("building KNN (1) classifier...");
             knn1.buildClassifier(data);
-            writeClassifierFile(knn1, "vickersOnly_knn1" + "_minSize_" + minSize);
+            writeClassifierFile(knn1, "RonaldTest_knn1" + "_minSize_" + minSize);
+            //for testing
+            return;
         }
         catch(Exception e)
         {   System.out.println("could not build classifier KNN (1)");
