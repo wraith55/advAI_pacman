@@ -471,6 +471,9 @@ public class PacMan extends MovingObject {
   @Override
   public void moveOneStep() {
       GameStateFeatures features = this.getCurrentFeatures();
+      
+      System.out.println(String.format("%f, ", moveBitMap(this.x, this.y)));
+      
      /*try {
          Platform.runLater(Thread.sleep(50));
      } catch (InterruptedException ex) {
@@ -696,6 +699,11 @@ public class PacMan extends MovingObject {
       return Math.sqrt( Math.pow(x2-x1, 2) +  Math.pow(y2-y1, 2) );
   }
   
+  public static double dist_formula(Pair<Double, Double> p1, Pair<Double, Double> p2)
+  {
+      return Math.sqrt( Math.pow(p2.left - p1.left, 2) +  Math.pow(p2.right - p1.right, 2));
+  }
+  
   private static int action_to_int(int action)
   { 
       switch(action)
@@ -732,6 +740,29 @@ public class PacMan extends MovingObject {
           this.start();
       else
           this.pause();
+  }
+  
+  public static Double moveBitMap(int x, int y)
+  {
+      Double bitMap = 0.0;
+      
+      bitMap += (available(x+1, y)) ? 1.0 : 0;  // powers of two for bits
+      bitMap += (available(x-1, y)) ? 2.0 : 0;
+      bitMap += (available(x, y+1)) ? 4.0 : 0;
+      bitMap += (available(x, y-1)) ? 8.0 : 0;
+      
+      return bitMap;
+  }
+  
+  public static boolean available(int x, int y)
+  {
+      if (x < 0 || x > MazeData.GRID_SIZE_X 
+          || y < 0 || y > MazeData.GRID_SIZE_Y)
+          return false;
+      
+      int value = MazeData.getData(x, y);
+      return (value == MazeData.EMPTY) || (value == MazeData.MAGIC_DOT)
+              || (value == MazeData.NORMAL_DOT);
   }
 
 }

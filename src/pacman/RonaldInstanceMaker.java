@@ -11,6 +11,7 @@ import net.sf.javaml.core.Instance;
 import net.sf.javaml.core.DenseInstance;
 import java.lang.IllegalArgumentException;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -18,26 +19,36 @@ import java.util.Arrays;
  */
 public class RonaldInstanceMaker implements PacInstanceMaker{
     
+    // statically define the indices of each feature in each main log file line
+    static final int timestepIndex = 0;
+    static final Pair<Integer, Integer> pacLocIndices = new Pair<>(1, 2);
+    static final Pair<Integer, Integer> pacDirIndices = new Pair<>(3, 4);
+    static final int eatModeIndex = 5;
+    static final List< Pair<Integer, Integer> > ghostLocIndices = new ArrayList<> 
+            ( Arrays.asList( new Pair<>(6,7), new Pair<>(8,9),
+                             new Pair<>(10, 11), new Pair<>(12, 13)) );
+    /**************************************************************************/
     
-    
-    
-
     @Override
     public Instance makeInstance(String mainLine, String dotLine, String magicDotLine) {
         //System.out.println("String1:" + mainLine);
         //System.out.println("String2:" + dotLine);
         //System.out.println("String3:" + magicDotLine);
         
-        Pair gameData = gameDataReader(mainLine);
-        double[] mainArr = (double[]) gameData.left;
-        DIRECTION pacDirection = (DIRECTION) gameData.right;
-        //System.out.println("length = " + mainArr.length);
+        double[] mainData = gameDataReader(mainLine);
+        
+        int pacX = (int) mainData[pacLocIndices.left] ;
+        int pacY = (int) mainData[pacLocIndices.right] ;
+        
+        Pair<Double[], DIRECTION> gameData = extractFeatures(mainData);
+        double[] mainArr = primConverter( gameData.left );
+        DIRECTION pacDirection = gameData.right;
         
         double[] dotArrTotal = new double[512];
         double[] magicDotArrTotal = new double[8];
         
-        Arrays.fill(dotArrTotal, -1000);  // default value puts it far outside location range
-        Arrays.fill(magicDotArrTotal, -1000);
+        Arrays.fill(dotArrTotal, 1000);  // default value puts it far outside location range
+        Arrays.fill(magicDotArrTotal, 1000);
         
         double[] dotArr = dotReader(dotLine);
         double[] magicDotArr = dotReader(magicDotLine);
@@ -45,14 +56,17 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         dotArrTotal = copyArray(dotArrTotal, dotArr);
         magicDotArrTotal = copyArray(magicDotArrTotal, magicDotArr);
         
-        int pacX = (int) mainArr[1] ;
-        int pacY = (int) mainArr[2] ;
+        // select pair of closest dots and pair of closest magic dots 
+        double[] minDotArr = minKLocationPairs(dotArrTotal, pacX, pacY, 2);
+        double[] minMagicDotArr = minKLocationPairs(magicDotArrTotal, pacX, pacY, 2);
+        /************************************************************/
+        // transform dot locations into distances
+        double[] minDotDists = computeManhattanDistances(pacX, pacY, minDotArr);
+        double[] minMagicDotDists = computeManhattanDistances(pacX, pacY, minMagicDotArr);
+        /***************************************************************/
         
-        // select 5 closest dots (10 numbers, 2 for each dot location)
-        double[] minDotArr = minKLocationPairs(dotArrTotal, pacX, pacY, 5);
-
         // below: changed to minDotArr to use closest dot pair locations
-        double[] totalArr = concatArrays(mainArr, minDotArr, magicDotArrTotal);        
+        double[] totalArr = concatArrays(mainArr, minDotDists, minMagicDotDists);        
         
         //Enum direction = pacDir(mainArr[3], mainArr[4]);
                 
@@ -61,13 +75,62 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         return dataInstance;
     }
     
+    private static Pair<Double[], DIRECTION> extractFeatures(double[] allValues)
+    {   final int numFeatures = 6;  // move bit map, eat mode, 4 ghost distances 
+        Double[] features = new Double[numFeatures];
+        
+        int pacX = (int) allValues[pacLocIndices.left];
+        int pacY = (int) allValues[pacLocIndices.right];
+        Pair<Integer, Integer> pacLoc = new Pair<>( pacX, pacY);
+        
+        int index = 0;
+        
+        features[index++] = allValues[eatModeIndex];
+        features[index++] = PacMan.moveBitMap(pacLoc.left, pacLoc.right) ;
+        
+        for (Pair<Integer, Integer> ghostLoc : ghostLocIndices)
+        {     
+           features[index++] = manhattanDistance(pacLoc, ghostLoc);
+        }
+        
+        DIRECTION dir = (DIRECTION) pacDir(allValues[pacDirIndices.left],
+                                           allValues[pacDirIndices.right]) ;
+        
+        return new Pair<> (features, dir);
+    }
+    
+    private static double[] computeManhattanDistances(int pacX, int pacY, double[] dotLocs)
+    {
+        assert(dotLocs.length % 2 == 0);
+
+        double[] dists = new double[dotLocs.length / 2];
+        
+        int index = 0;
+        for (int i = 0; i < dotLocs.length-1; i+=2)
+        {
+            dists[index++] = manhattanDistance(pacX, (int) dotLocs[i],     // x1, x2
+                                               pacY, (int) dotLocs[i+1]);  // y1, y2
+        }
+        return dists;
+    }
+    
+    public static double manhattanDistance(int x1, int x2, int y1, int y2)
+    {
+        return manhattanDistance(new Pair<> (x1, y1),
+                                 new Pair<> (x2, y2));
+    }
+    
+    public static double manhattanDistance(Pair<Integer, Integer> p1, Pair<Integer, Integer> p2)
+    {
+        return 0.0;  // TODO: implement
+    }
     
     /**
      * Reads data from strings of the game data recorded
      * @param mainline a string of values passed in from a text file
      * @return a double array with all numeric values
      */
-    private Pair<double[],Enum> gameDataReader(String mainline){
+    private double[] gameDataReader(String mainline){
         ArrayList<Double> values;
         values = new ArrayList<>();
         
@@ -83,19 +146,19 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
                 }
             }
         }
-        DIRECTION dir = (DIRECTION) pacDir(values.get(3), values.get(4));
+        //DIRECTION dir = (DIRECTION) pacDir(values.get(3), values.get(4));
         
         //remove timestamp and pacdirection, which is essentially junk data
-        values.remove(0);
-        values.remove(3);
-        values.remove(4);
+        //values.remove(0);
+        //values.remove(3);
+        //values.remove(4);
         Double[] valArr = new Double[values.size()];
         valArr = values.toArray(valArr);
         
-        double[] primArr = primConverter(valArr);
-        Pair gameData = new Pair(primArr, dir);
+        return primConverter(valArr);
+        //Pair gameData = new Pair(primArr, dir);
         
-        return gameData;
+        //return gameData;
         
     }
     
@@ -186,13 +249,17 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
      * @param k number of min you wantr
      * @return an array of indices of the locations of the k minimum dots
      */
+    // TODO: debug - seems to return incorrect indices at times...at beginning of game
+    // using minKLocationPairs with this method says that (5,5) is the closest dot!
+    
+    // TODO: use manhattanDistance instead of straight-line
     public static int[] minKIndices(double[] dotvals, double pacx, double pacy, int k) throws IllegalArgumentException{
         int[] indices = new int[k];
         double[] dists = new double[dotvals.length/2];
         if (dotvals.length % 2 != 0) throw new IllegalArgumentException("Length of dotvals must be even");
         int idx = 0;
         for(int i=0;i<dotvals.length-1;i+=2){
-            dists[idx++] = PacMan.dist_formula(dotvals[i],dotvals[i+1], pacx, pacy);            
+            dists[idx++] = PacMan.dist_formula(pacx, dotvals[i], pacy, dotvals[i+1]);            
         }
         for(int i=0; i<k; i++){
             double min = dists[0];
@@ -236,7 +303,7 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
      * @return DIRECTION enum
      * @throws IllegalArgumentException if the x and y directions are not legal
      */
-    private Enum pacDir(double xdir, double ydir) throws IllegalArgumentException{
+    private static DIRECTION pacDir(double xdir, double ydir) throws IllegalArgumentException{
         if(xdir == -1){
             if (ydir != 0) throw new IllegalArgumentException("Pacman cannot travel diagonally");
             else return DIRECTION.LEFT;

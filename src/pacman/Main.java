@@ -42,35 +42,33 @@ public class Main extends Application {
     final Group root = new Group();
     final Scene scene = new Scene(root);
     
+    // create a dummy maze, which initializes the MazeData data structures
+    new Maze("foobar", 50, null, null);
+    
     PacInstanceMaker instMaker = new RonaldInstanceMaker();
     
     System.out.println("current dir = " + System.getProperty("user.dir"));
     
     int minSize = 250;
     
-    //List<Instance> instances = PacML.readInstancesFromDir("data/main", "data/dots", 
-    //                                                          "data/magic_dots", instMaker, minSize) ;
+    List<Instance> instances = PacML.readInstancesFromDir("data/vickers_data/main", "data/vickers_data/dots", 
+                                                          "data/vickers_data/magic_dots", instMaker, minSize) ;
     //System.out.println("instances size = " + instances.size() ) ;
     
     //cross_validate(instances);
 
     //System.exit(0);
     
-    //Classifier c = new KNearestNeighbors(50);
-    //System.out.println("building classifier from dataset...");
-    //c.buildClassifier(PacML.makeDataset(instances));
-    
-    //PacML.writeClassifierFile(c, "knn50_full_data");
-    
-    //PacML.makeBasicClassifiers(instances, minSize);
+    //PacML.makeBasicClassifiers(instances, "vickersOnly_minSize" + minSize + "_");
     
     //System.exit(0);
     
-    Classifier c = PacML.readClassifierFile("RonaldTest_knn1_minsize_250", 1);
+    //Classifier c = PacML.readClassifierFile("vickersOnly_knn1_vickersOnly_minSize250_", 25);
 
+ 
     
-    root.getChildren().add(new Maze("fake_name", 10, c, instMaker));
-    //root.getChildren().add(new Maze("James_Vickers", 50, null, null));
+    //root.getChildren().add(new Maze("fake_name", 10, c, instMaker));
+    root.getChildren().add(new Maze("foobar", 50, null, null));
     
     primaryStage.setScene(scene);
     primaryStage.show();
