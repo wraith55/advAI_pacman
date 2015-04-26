@@ -47,8 +47,8 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         double[] dotArrTotal = new double[512];
         double[] magicDotArrTotal = new double[8];
         
-        Arrays.fill(dotArrTotal, 1000);  // default value puts it far outside location range
-        Arrays.fill(magicDotArrTotal, 1000);
+        Arrays.fill(dotArrTotal, Double.MAX_VALUE);  // default value puts it far outside location range
+        Arrays.fill(magicDotArrTotal, Double.MAX_VALUE);
         
         double[] dotArr = dotReader(dotLine);
         double[] magicDotArr = dotReader(magicDotLine);
@@ -57,8 +57,8 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         magicDotArrTotal = copyArray(magicDotArrTotal, magicDotArr);
         
         // select pair of closest dots and pair of closest magic dots 
-        double[] minDotArr = minKLocationPairs(dotArrTotal, pacX, pacY, 2);
-        double[] minMagicDotArr = minKLocationPairs(magicDotArrTotal, pacX, pacY, 2);
+        double[] minDotArr = minKLocationPairs(dotArrTotal, pacX, pacY, 1);
+        double[] minMagicDotArr = minKLocationPairs(magicDotArrTotal, pacX, pacY, 0);
         /************************************************************/
         // transform dot locations into distances
         double[] minDotDists = computeManhattanDistances(pacX, pacY, minDotArr);
@@ -90,8 +90,11 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         features[index++] = allValues[eatModeIndex];
         features[index++] = PacMan.moveBitMap(pacLoc.left, pacLoc.right) ;
         
-        for (Pair<Integer, Integer> ghostLoc : ghostLocIndices)
+        for (Pair<Integer, Integer> ghostLocIndex : ghostLocIndices)
         {     
+           int x = new Double( allValues[ghostLocIndex.left] ).intValue();
+           int y = new Double( allValues[ghostLocIndex.right] ).intValue();
+           Pair<Integer, Integer> ghostLoc = new Pair<> (x, y);
            Pair distFeatures = manhattanDistance(pacLoc, ghostLoc);          
            ghostDists[ghostIndex++] = (double) distFeatures.left;
            ghostDists[ghostIndex++] = (double) distFeatures.right;     
@@ -266,11 +269,11 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         Double[] minDists = new Double[k*2];
 
         for(int i=0; i<k; i++){
-            double min = dists[0] + dists[1];
+            double min = Math.abs(dists[0]) + Math.abs(dists[1]);
             int index = 0;
             for(int j=0; j<dists.length;j+=2){
-                if(dists[j] + dists[j+1] < min){
-                    min = dists[j];
+                if(Math.abs(dists[j]) + Math.abs(dists[j+1]) < min){
+                    min = Math.abs(dists[j]);
                     index = j;
                 }
             }
