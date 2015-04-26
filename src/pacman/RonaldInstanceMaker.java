@@ -76,22 +76,33 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
     }
     
     private static Pair<Double[], DIRECTION> extractFeatures(double[] allValues)
-    {   final int numFeatures = 6;  // move bit map, eat mode, 4 ghost distances 
+    {   final int numFeatures = 4;  // move bit map, eat mode, 2 ghost distances (for 1 ghost) 
+        final int ghostsTracked = 1;
         Double[] features = new Double[numFeatures];
         
         int pacX = (int) allValues[pacLocIndices.left];
         int pacY = (int) allValues[pacLocIndices.right];
         Pair<Integer, Integer> pacLoc = new Pair<>( pacX, pacY);
+        Double[] ghostDists = new Double[8];
         
         int index = 0;
-        
+        int ghostIndex = 0;
         features[index++] = allValues[eatModeIndex];
         features[index++] = PacMan.moveBitMap(pacLoc.left, pacLoc.right) ;
         
         for (Pair<Integer, Integer> ghostLoc : ghostLocIndices)
         {     
-           features[index++] = manhattanDistance(pacLoc, ghostLoc);
+           Pair distFeatures = manhattanDistance(pacLoc, ghostLoc);          
+           ghostDists[ghostIndex++] = (double) distFeatures.left;
+           ghostDists[ghostIndex++] = (double) distFeatures.right;     
         }
+        
+        Double[] closeGhosts = minDists(ghostDists,ghostsTracked);
+        assert(closeGhosts.length == ghostsTracked*2);
+        for(Double d : closeGhosts){
+            features[index++] = d;
+        }
+        
         
         DIRECTION dir = (DIRECTION) pacDir(allValues[pacDirIndices.left],
                                            allValues[pacDirIndices.right]) ;
@@ -103,26 +114,30 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
     {
         assert(dotLocs.length % 2 == 0);
 
-        double[] dists = new double[dotLocs.length / 2];
+        double[] dists = new double[dotLocs.length];
         
-        int index = 0;
+        //int index = 0;
         for (int i = 0; i < dotLocs.length-1; i+=2)
         {
-            dists[index++] = manhattanDistance(pacX, (int) dotLocs[i],     // x1, x2
-                                               pacY, (int) dotLocs[i+1]);  // y1, y2
+            Pair distPair = manhattanDistance(pacX, (int) dotLocs[i],     // x1, x2
+                                               pacY, (int) dotLocs[i+1]); // y1, y2
+            dists[i] = (double)distPair.left;
+            dists[i+1] = (double) distPair.right;
         }
         return dists;
     }
     
-    public static double manhattanDistance(int x1, int x2, int y1, int y2)
+    public static Pair manhattanDistance(int x1, int x2, int y1, int y2)
     {
         return manhattanDistance(new Pair<> (x1, y1),
                                  new Pair<> (x2, y2));
     }
     
-    public static double manhattanDistance(Pair<Integer, Integer> p1, Pair<Integer, Integer> p2)
-    {
-        return 0.0;  // TODO: implement
+    public static Pair manhattanDistance(Pair<Integer, Integer> p1, Pair<Integer, Integer> p2)
+    {        
+        //subtract pac from loc so negative will be left and down (though it shouldn't matter)
+        Pair p = new Pair((double)p2.left - p1.left, (double)p2.right - p1.right);
+        return p;
     }
     
     /**
@@ -241,6 +256,35 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         return arr1;        
     }
     
+    
+    
+    public static Double[] minDists(Double[] dists, int k){
+        assert(dists.length > 0 && dists.length % 2 == 0);
+        assert(k <= dists.length);
+                
+        int[] indices = new int[k];
+        Double[] minDists = new Double[k*2];
+
+        for(int i=0; i<k; i++){
+            double min = dists[0] + dists[1];
+            int index = 0;
+            for(int j=0; j<dists.length;j+=2){
+                if(dists[j] + dists[j+1] < min){
+                    min = dists[j];
+                    index = j;
+                }
+            }
+            minDists[i] = dists[index];
+            minDists[i+1] = dists[index+1];
+            dists[index] = Double.MAX_VALUE;
+            dists[index+1] = Double.MAX_VALUE;
+        }
+        
+        return minDists;
+        
+    }
+    
+    
     /**
      * returns the max k indices of the dot values
      * @param dotvals the array of dot locations
@@ -322,6 +366,7 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         }
         else if (xdir == 0 && ydir == 0){
             //???
+            System.err.println("PACDIR IS (0,0)!");
             return DIRECTION.UP;
         }
         else{
