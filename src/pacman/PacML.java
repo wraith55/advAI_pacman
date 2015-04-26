@@ -225,8 +225,8 @@ public class PacML
         }
         */
         
-        //  kd KNN just throws an exception
-        
+        //  kd KNN just throws an exception when serialized
+        /*
         for (int k : k_vals)
         {   try
             {   Classifier kdKNN = new KDtreeKNN(k);
@@ -239,7 +239,7 @@ public class PacML
                 e.printStackTrace();
             }
         }
-        
+        */
 
 
     }
