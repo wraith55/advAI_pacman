@@ -529,7 +529,7 @@ public class Maze extends Parent {
     group.getChildren().add(pacMan);
 
     // insert ghosts into group.content;
-    //group.getChildren().addAll(ghosts);
+    group.getChildren().addAll(ghosts);
 
     // Black-out side door exit points so moving objects disappear at maze borders
     group.getChildren().add(new WallBlackRectangle(-2, 13, -0.5f, 15));

@@ -12,6 +12,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import net.sf.javaml.classification.Classifier;
+import net.sf.javaml.classification.KDtreeKNN;
 import net.sf.javaml.classification.KNearestNeighbors;
 import net.sf.javaml.core.Instance;
 
@@ -42,22 +43,24 @@ public class Main extends Application {
     final Group root = new Group();
     final Scene scene = new Scene(root);
     
-    // create a dummy maze, which initializes the MazeData data structures
-    new Maze("foobar", 50, null, null);
-    
+    final int k = 3;
+    Classifier c = new KDtreeKNN(k);
     PacInstanceMaker instMaker = new RonaldInstanceMaker();
+
     
+    // create maze before training, which initializes the MazeData data structures
+    //Maze maze = new Maze("foobar", 50, null, null);         // human controller
+    Maze maze = new Maze("kdKNN3_controller", 10, c, instMaker);  // AI controller
+        
     System.out.println("current dir = " + System.getProperty("user.dir"));
     
     int minSize = 250;
     
     List<Instance> instances = PacML.readInstancesFromDir("data/vickers_data/main", "data/vickers_data/dots", 
                                                           "data/vickers_data/magic_dots", instMaker, minSize) ;
-    //System.out.println("instances size = " + instances.size() ) ;
+    System.out.println("instances size = " + instances.size() ) ;
     
     //cross_validate(instances);
-
-    //System.exit(0);
     
     //PacML.makeBasicClassifiers(instances, "vickersOnly_minSize" + minSize + "_");
     
@@ -65,10 +68,10 @@ public class Main extends Application {
     
     //Classifier c = PacML.readClassifierFile("vickersOnly_knn1_vickersOnly_minSize250_", 25);
 
- 
+    System.out.println("building KDtreeKNN" + k + " classifier...");
+    c.buildClassifier(PacML.makeDataset(instances));
     
-    //root.getChildren().add(new Maze("fake_name", 10, c, instMaker));
-    root.getChildren().add(new Maze("foobar", 50, null, null));
+    root.getChildren().add(maze);
     
     primaryStage.setScene(scene);
     primaryStage.show();

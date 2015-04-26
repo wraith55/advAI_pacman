@@ -471,9 +471,7 @@ public class PacMan extends MovingObject {
   @Override
   public void moveOneStep() {
       GameStateFeatures features = this.getCurrentFeatures();
-      
-      System.out.println(String.format("%f, ", moveBitMap(this.x, this.y)));
-      
+            
      /*try {
          Platform.runLater(Thread.sleep(50));
      } catch (InterruptedException ex) {

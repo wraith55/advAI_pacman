@@ -209,6 +209,7 @@ public class PacML
         
         int[] k_vals = new int[]{1, 5, 25, 50, 100, 300, 500, 1000};
         
+        /*
         for (int k : k_vals)
         {
             try
@@ -222,18 +223,19 @@ public class PacML
                 e.printStackTrace();
             }   
         }
+        */
         
-        //  kd KNN just throws an exception
+        //  kd KNN just throws an exception when serialized
         /*
         for (int k : k_vals)
         {   try
             {   Classifier kdKNN = new KDtreeKNN(k);
                 System.out.println("building KDtreeKNN" + k + " classifier...");
                 kdKNN.buildClassifier(data);
-                writeClassifierFile(kdKNN5, "kdKNN5" + "_" + label);
+                writeClassifierFile(kdKNN, "kdKNN" + k + "_" + label);
             }
             catch(Exception e)
-            {   System.out.println("could not build classifier KDtreeKNN" + k);
+            {   System.out.println("could not build classifier KDtreeKNN " + k);
                 e.printStackTrace();
             }
         }
