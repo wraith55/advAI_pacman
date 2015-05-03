@@ -58,7 +58,7 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         
         // select pair of closest dots and pair of closest magic dots 
         double[] minDotArr = minKLocationPairs(dotArrTotal, pacX, pacY, 1);
-        double[] minMagicDotArr = minKLocationPairs(magicDotArrTotal, pacX, pacY, 0);
+        double[] minMagicDotArr = minKLocationPairs(magicDotArrTotal, pacX, pacY, 1);
         /************************************************************/
         // transform dot locations into distances
         double[] minDotDists = computeManhattanDistances(pacX, pacY, minDotArr);
@@ -107,8 +107,8 @@ public class RonaldInstanceMaker implements PacInstanceMaker{
         }
         
         
-        DIRECTION dir = (DIRECTION) pacDir(allValues[pacDirIndices.left],
-                                           allValues[pacDirIndices.right]) ;
+        DIRECTION dir = pacDir(allValues[pacDirIndices.left],
+                               allValues[pacDirIndices.right]) ;
         
         return new Pair<> (features, dir);
     }

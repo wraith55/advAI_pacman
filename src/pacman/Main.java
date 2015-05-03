@@ -26,60 +26,93 @@ import net.sf.javaml.core.Instance;
  */
 public class Main extends Application {
 
+
+    
   /**
    * @param args the command line arguments
    */
-  public static void main(String[] args) 
+  public static void main(String[] args) throws Exception
   {
-    Application.launch(Main.class, args);
+        Application.launch(Main.class, args);
+    
   }
 
   @Override
   public void start(Stage primaryStage) throws Exception {
-    primaryStage.setTitle("Pac-Man by Henry Zhang www.javafxgame.com and Patrick Webster");
-    primaryStage.setWidth(MazeData.calcGridX(MazeData.GRID_SIZE_X + 2));
-    primaryStage.setHeight(MazeData.calcGridY(MazeData.GRID_SIZE_Y + 4));
+    
+    List<String> args = getParameters().getRaw();
+      
+    final GameMode mode = (args.isEmpty()) ? GameMode.HUMAN : GameMode.AI; 
+      
+    final int[] k_vals = {1, 3, 5, 10, 15, 25, 50, 100};
+    final int numGames = 10;
+    final PacInstanceMaker instMaker = new RonaldInstanceMaker(); 
 
-    final Group root = new Group();
-    final Scene scene = new Scene(root);
-    
-    final int k = 3;
-    Classifier c = new KDtreeKNN(k);
-    PacInstanceMaker instMaker = new RonaldInstanceMaker();
-
-    
-    // create maze before training, which initializes the MazeData data structures
-    //Maze maze = new Maze("foobar", 50, null, null);         // human controller
-    Maze maze = new Maze("kdKNN3_controller", 10, c, instMaker);  // AI controller
-        
-    System.out.println("current dir = " + System.getProperty("user.dir"));
-    
-    int minSize = 250;
-    
-    List<Instance> instances = PacML.readInstancesFromDir("data/vickers_data/main", "data/vickers_data/dots", 
+    if (mode == GameMode.AI)
+    {        
+        // Read instances
+        int minSize = 250;
+        List<Instance> instances = PacML.readInstancesFromDir("data/vickers_data/main", "data/vickers_data/dots", 
                                                           "data/vickers_data/magic_dots", instMaker, minSize) ;
-    System.out.println("instances size = " + instances.size() ) ;
-    
-    //cross_validate(instances);
-    
-    //PacML.makeBasicClassifiers(instances, "vickersOnly_minSize" + minSize + "_");
-    
-    //System.exit(0);
-    
-    //Classifier c = PacML.readClassifierFile("vickersOnly_knn1_vickersOnly_minSize250_", 25);
+        System.out.println("instances size = " + instances.size() ) ;
+        
+        final int k = Integer.parseInt(args.get(0));
+        
+        System.out.println("building KNN" + k + " classifier...");
+            
+        /*Classifier c = PacML.readClassifierFile("KNN" + k + "_fullData");
+        if (c == null)
+        {
+            System.err.println("reading classifier: " + ("KNN" + k + "_fullData") + " returned null!");
+            return;
+        }
+        */
 
-    System.out.println("building KDtreeKNN" + k + " classifier...");
-    c.buildClassifier(PacML.makeDataset(instances));
+        
+        cross_validate(k, instances, 2);
+        
+        Classifier c = new KNearestNeighbors(k, new PacDistMeasure());
+        c.buildClassifier(PacML.makeDataset(instances));
     
-    root.getChildren().add(maze);
+        // create maze before training, which initializes the MazeData data structures
+        Maze maze = new Maze("KNN" + k + "_controller", numGames, c, instMaker);  // AI controller
+             
+        primaryStage.setTitle("Pac-Man by Henry Zhang www.javafxgame.com and Patrick Webster");
+        primaryStage.setWidth(MazeData.calcGridX(MazeData.GRID_SIZE_X + 2));
+        primaryStage.setHeight(MazeData.calcGridY(MazeData.GRID_SIZE_Y + 4));
+
+        final Group root = new Group();
+        final Scene scene = new Scene(root);
+        root.getChildren().add(maze);
+        
+        maze.startNewGame();
     
-    primaryStage.setScene(scene);
-    primaryStage.show();
+        primaryStage.setScene(scene);
+        primaryStage.show();
+        
+    }
+    else
+    {
+        primaryStage.setTitle("Pac-Man by Henry Zhang www.javafxgame.com and Patrick Webster");
+        primaryStage.setWidth(MazeData.calcGridX(MazeData.GRID_SIZE_X + 2));
+        primaryStage.setHeight(MazeData.calcGridY(MazeData.GRID_SIZE_Y + 4));
+
+        Maze maze = new Maze("foobar", numGames, null, null);         // human controller
+
+        final Group root = new Group();
+        final Scene scene = new Scene(root);
+        root.getChildren().add(maze);
+        
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+    
   }
   
-  public static void cross_validate(List<Instance> instances) throws Exception
+  public static void cross_validate(int k, List<Instance> instances, int trials) throws Exception
   {
-    for (int cross_idx = 0; cross_idx < 10; cross_idx++)
+    
+    for (int cross_idx = 0; cross_idx < trials; cross_idx++)
     {
         List<Instance> training = new ArrayList<>();
         List<Instance> testing = new ArrayList<>();
@@ -92,8 +125,8 @@ public class Main extends Application {
                 training.add(instances.get(i));
         }
         
-        Classifier c = new KNearestNeighbors(5);
         System.out.println("building classifier from dataset...cross_idx = " + cross_idx);
+        Classifier c = new KNearestNeighbors(k, new PacDistMeasure());
         c.buildClassifier(PacML.makeDataset(training));
         
         int left = 0, up = 0, down = 0, right = 0;

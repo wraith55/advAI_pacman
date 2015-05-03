@@ -19,17 +19,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import libsvm.LibSVM;
-import libsvm.SelfOptimizingLinearLibSVM;
 import net.sf.javaml.classification.Classifier;
-import net.sf.javaml.classification.KDtreeKNN;
-import net.sf.javaml.classification.KNearestNeighbors;
-import net.sf.javaml.classification.MeanFeatureVotingClassifier;
-import net.sf.javaml.classification.NearestMeanClassifier;
-import net.sf.javaml.classification.tree.RandomForest;
 import net.sf.javaml.core.Dataset;
 import net.sf.javaml.core.DefaultDataset;
 import net.sf.javaml.core.Instance;
@@ -72,10 +63,15 @@ public class PacML
         
         List<Instance> instances = new ArrayList<>();
         
+        
         // For every file in the mainDir, open the corresponding file in the
         // other two dirs, pass their paths and the instMaker to readInstances().
-        for (File mainFile : mainDir.listFiles())
+        File[] files = mainDir.listFiles();
+        for (int i = 0; i < files.length; i++)
         {
+            File mainFile = files[i];
+            System.out.println("PacML.readInstancesFromDir: file " + i + "/" + files.length);
+            
             String mainName = mainFile.getName();
             String dotPath = dotDirPath + File.separator + mainName ;
             String magDotPath = magDotDirPath + File.separator + mainName ;
@@ -106,7 +102,7 @@ public class PacML
         if (magDotPath == null || magDotPath.equals(""))
             throw new IllegalArgumentException("magDotPath is empty or null - magDotPath = " 
                                                 + magDotPath);
-        
+                
         File mainFile = new File(mainPath);
         File dotFile = new File(dotPath);
         File magDotFile = new File(magDotPath);
@@ -183,7 +179,7 @@ public class PacML
      * @throws FileNotFoundException
      * @throws IOException 
      */
-    public static Classifier readClassifierFile(String name, int n) throws FileNotFoundException, IOException{
+    public static Classifier readClassifierFile(String name) throws FileNotFoundException, IOException{
         InputStream file = new FileInputStream("data/classifiers/" + name);
         InputStream buffer = new BufferedInputStream(file);
         ObjectInput input = new ObjectInputStream(buffer);
@@ -201,6 +197,7 @@ public class PacML
         }
         
     }
+    
     
     public static void makeBasicClassifiers(List<Instance> train_instances, String label) throws IOException
     {

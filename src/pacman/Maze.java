@@ -3,6 +3,8 @@ package pacman;
 //import javafx.scene.CustomNode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -103,6 +105,7 @@ public class Maze extends Parent {
  private int timesPlayed = 0;  // change to allow for more logging
  private Classifier classifier = null;
  private PacInstanceMaker instMaker = null;
+ private final GameMode mode;
  
  
   public Maze(String playerName, int numGames, Classifier classifier, PacInstanceMaker instMaker) {
@@ -122,10 +125,12 @@ public class Maze extends Parent {
     if (this.instMaker == null || this.classifier == null)
     {   System.out.println("Maze constructor: mode is human");    
         pacMan = new PacMan(this, 15, 24, playerName);
+        this.mode = GameMode.HUMAN;
     }
     else
     {   System.out.println("Maze constructor: mode is AI");
         pacMan = new PacMan(this, 15, 24, playerName, this.classifier, this.instMaker);
+        this.mode = GameMode.AI;
     }
     
         
@@ -214,8 +219,10 @@ public class Maze extends Parent {
 
     level = new SimpleIntegerProperty(1);
     addLifeFlag = true;
-    waitForStart = new SimpleBooleanProperty(true);
-
+    
+    // VICKERS: changed this line so the game only waits when there is a human player
+    waitForStart = new SimpleBooleanProperty(this.mode == GameMode.HUMAN); 
+    
     messageBox = new Group();
     final Rectangle rectMessage = new Rectangle(MazeData.calcGridX(5),
             MazeData.calcGridYFloat(17.5f),
@@ -290,8 +297,9 @@ public class Maze extends Parent {
          gameResultText.setVisible(!gameResultText.isVisible());
          if (++flashingCount == 5) {
            messageBox.setVisible(true);
-           waitForStart.set(true);
          }
+         
+         waitForStart.set(mode == GameMode.HUMAN);
       }
 
     });
@@ -549,11 +557,20 @@ public class Maze extends Parent {
     
     this.activeDots.addAll(this.origDotLocs);
     this.magicDots.addAll(this.origMagicDotLocs);
+    
   }
 
 
   public void onKeyPressed(KeyEvent e) {
 
+    if (e == null)
+    {
+        if (this.mode == GameMode.AI)
+        {   startNewGame();
+            return;
+        }
+    }
+      
     // wait for the player's keyboard input to start the game
     if (waitForStart.get()) {
       waitForStart.set(false);
@@ -575,8 +592,8 @@ public class Maze extends Parent {
       return;
     }
     
-    // only handle keyboard input if classifier is not active
-    if (this.classifier == null)
+    // only handle keyboard input if person is playing
+    if (this.mode == GameMode.HUMAN)
     {
         switch( e.getCode() )
         {
@@ -899,6 +916,11 @@ public class Maze extends Parent {
     for (Ghost g : ghosts) {
       g.hide();
     }
+    
+    if (this.mode == GameMode.AI)
+    {   onKeyPressed(null);  // imitate key press to start next round
+        return;
+    }
 
     flashingCount = 0;
     flashingTimeline.playFromStart();
@@ -911,18 +933,23 @@ public class Maze extends Parent {
     if (livesCount.get() > 0) {
       livesCount.set(livesCount.get() - 1);
     }
-    else {
+    else if (this.mode == GameMode.HUMAN) {
       lastGameResult.set(false);
       flashingCount = 0;
       flashingTimeline.playFromStart();
       return;
     }
+    
+    if (this.mode == GameMode.AI)
+        onKeyPressed(null);  // imitate key press to start next round
 
     pacMan.resetStatus();
 
     for (Ghost g : ghosts) {
       g.resetStatus();
     }
+    
+
   }
 
   public void addLife() {
@@ -937,4 +964,6 @@ public class Maze extends Parent {
   
   public List<Pair<Integer, Integer>> getMagicDotLocs()  { return this.magicDots;  }
 
+  public GameMode getMode()  {  return this.mode;  }
+  
 }
