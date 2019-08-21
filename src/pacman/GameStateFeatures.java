@@ -27,6 +27,8 @@ public class GameStateFeatures
         this.ghost_locations = ghostLocs;
     }
     
+    public long getTimestep()  {  return this.timestep;  }
+    
     @Override
     public boolean equals(Object obj)
     {

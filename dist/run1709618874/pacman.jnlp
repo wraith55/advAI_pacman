@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0" xmlns:jfx="http://javafx.com" href="pacman.jnlp">
+  <information>
+    <title>pacman</title>
+    <vendor>patweb</vendor>
+    <description>null</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <jfx:javafx-runtime version="2.2+" href="http://javadl.sun.com/webapps/download/GetFile/javafx-latest/windows-i586/javafx2.jnlp"/>
+  </resources>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="lib/Jama-1.0.2.jar" size="32775" download="eager" />
+    <jar href="lib/ajt-2.9.jar" size="139628" download="eager" />
+    <jar href="lib/commons-math-1.2.jar" size="338488" download="eager" />
+    <jar href="lib/javaml-0.1.7.jar" size="381303" download="eager" />
+    <jar href="lib/libsvm.jar" size="49771" download="eager" />
+    <jar href="lib/weka.jar" size="5283274" download="eager" />
+    <jar href="pacman.jar" size="69595" download="eager" />
+  </resources>
+  <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="pacman" >
+    <param name="requiredFXVersion" value="2.2+"/>
+  </applet-desc>
+  <jfx:javafx-desc  width="800" height="600" main-class="pacman.Main"  name="pacman" />
+  <update check="background"/>
+</jnlp>
